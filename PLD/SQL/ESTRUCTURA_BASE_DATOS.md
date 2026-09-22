@@ -1,0 +1,131 @@
+# Estructura de Base de Datos — PLD
+
+> Documento canónico de la estructura de base de datos conocida por el repositorio.
+>
+> **Obligatorio:** todo cambio de esquema realizado por ChatGPT, Codex u otro agente debe actualizar este archivo y crear el script incremental correspondiente en `PLD/SQL/`, conforme a `AGENTS.md`.
+
+## Estado actual de la documentación
+
+El repositorio **no contiene actualmente el DDL completo de toda la base operativa**. Por lo tanto, este documento no pretende inventar ni reconstruir columnas que no estén confirmadas.
+
+La estructura completa de producción debe contrastarse con la base de datos real antes de ejecutar migraciones de alto impacto.
+
+## Conexión utilizada por la aplicación
+
+Nombre lógico de la cadena de conexión:
+
+`PLDConnection`
+
+Motor observado:
+
+**Microsoft SQL Server**
+
+Acceso principal desde código:
+
+- `System.Data.SqlClient.SqlConnection`
+- `System.Data.SqlClient.SqlCommand`
+
+## Scripts incrementales actualmente versionados
+
+1. `20260513_seguridad.sql`
+2. `20260513_seguridad_pagina_handler.sql`
+
+Estos scripts documentan principalmente la estructura de seguridad y no representan por sí solos la creación completa de la base de datos PLD.
+
+## Objetos de seguridad confirmados por scripts versionados
+
+- `catalogo_roles_permisos`
+- `catalogo_puestos`
+- `seguridad_usuarios`
+- `seguridad_paginas`
+- `seguridad_menu`
+- `seguridad_rol_pagina`
+- `seguridad_pagina_handler`
+
+## Objetos operativos confirmados por uso en el código
+
+Los siguientes objetos aparecen utilizados directamente por handlers o módulos del sistema. Su existencia está confirmada por el código, pero este repositorio no contiene todavía su DDL completo:
+
+### Crédito y cliente
+
+- `solicitud_credito`
+- `cliente_persona_fisica`
+- `contacto_solicitud`
+- `contacto_solicitud_telefono`
+- `contacto_solicitud_email`
+- `contacto_solicitud_domicilio`
+- `referencias`
+- `pagos_credito`
+
+### Producto financiero
+
+- `catalogo_producto_financiero`
+- `catalogo_producto_financiero_periodos`
+- `detalles_del_producto`
+- `producto_planeacion`
+- `vw_producto_financiero_completo`
+
+### PLD y alertas
+
+- `solicitud_pld_detalle`
+- `vw_pld_factores`
+- `alertas_pld`
+- `alertas_pld_bitacora`
+- `catalogo_alerta_categoria`
+- `catalogo_alerta_motivo`
+- `catalogo_alerta_regla`
+- `config_umbrales_pld`
+- `config_puntaje_categoria`
+- `config_peso_cliente_pf`
+- `config_peso_cliente_pm`
+- `config_peso_producto`
+- `config_peso_zona`
+- `config_peso_general`
+- `config_peso_alertas`
+- `config_peso_transacciones`
+- `vw_pagos_credito_pld`
+- `vw_pagos_credito_pld_mensual`
+- `vw_pagos_credito_pld_credito`
+- `vw_pagos_credito_pld_cliente_periodo`
+
+### Catálogos observados
+
+- `catalogo_paises`
+- `catalogo_estados`
+- `catalogo_municipios`
+- `catalogo_nacionalidad` / `catalogo_nacionalidades` según módulo existente
+- `catalogo_ocupacion`
+- `catalogo_actividad_economica`
+- `catalogo_origen_recursos`
+- `catalogo_destino_recursos`
+- `catalogo_moneda_divisa`
+- `catalogo_canal_pago`
+- `catalogo_tipo_pago`
+- `catalogo_aplicacion_pago`
+- otros catálogos expuestos por handlers del proyecto
+
+> Nota: cuando exista discrepancia de nombre entre módulos, se debe verificar contra SQL Server antes de normalizar o renombrar. No corregir nombres por intuición.
+
+## Regla de mantenimiento
+
+Cada migración nueva debe agregar aquí, según corresponda:
+
+- objeto afectado;
+- columnas nuevas/modificadas/eliminadas;
+- tipo de dato;
+- nullability;
+- default;
+- PK/FK;
+- índices y constraints relevantes;
+- vistas/procedimientos/funciones afectados;
+- dependencias;
+- script incremental que introdujo el cambio;
+- fecha del cambio.
+
+## Historial de estructura documentada
+
+### 2026-09-22
+
+Se crea este documento como referencia canónica. No se realizaron cambios de esquema en esta fecha; únicamente se formalizó la obligación de mantener sincronizados:
+
+**código + SQL incremental + estructura documentada + README (cuando aplique) + bitácora**.
