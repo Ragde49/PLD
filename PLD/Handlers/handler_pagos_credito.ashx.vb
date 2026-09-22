@@ -610,7 +610,9 @@ Public Class handler_pagos_credito
                     Dim defaultEsPagoExcedente As Boolean = False
                     Dim defaultEsLiquidacion As Boolean = False
 
-                    If montoPago > saldoAntes Then
+                    If esRevolvente Then
+                        defaultEsPagoExcedente = montoCapital > saldoAntes
+                    ElseIf montoPago > saldoAntes Then
                         defaultEsPagoExcedente = True
                     End If
 
