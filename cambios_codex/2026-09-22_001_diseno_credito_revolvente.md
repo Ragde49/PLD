@@ -613,9 +613,9 @@ Estas preguntas **no bloquean el diseño estructural**, pero sí bloquean una im
 
 ---
 
-## Resultado de implementación
+## Resultado del diseño inicial
 
-**Estado final:** PENDIENTE  
+**Estado histórico del diseño:** SUPERADO POR IMPLEMENTACIÓN POSTERIOR  
 **Commit/PR:** Ver commit que incorpora este documento.
 
 ### Archivos modificados
@@ -649,7 +649,7 @@ No aplica todavía. El sistema no cambió; solamente se documentó una propuesta
 - confirmar reglas financieras listadas en este documento;
 - contrastar la base de datos real antes de cualquier migración;
 - recibir muestra de estado de cuenta antes de diseñar su formato definitivo;
-- no implementar hasta aprobación del diseño.
+- la aprobación ya fue otorgada posteriormente; ver sección de implementación ejecutada.
 
 
 ---
