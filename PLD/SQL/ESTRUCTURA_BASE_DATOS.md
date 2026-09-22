@@ -29,6 +29,7 @@ Acceso principal desde código:
 
 1. `20260513_seguridad.sql`
 2. `20260513_seguridad_pagina_handler.sql`
+3. `20260922_001_credito_revolvente.sql`
 
 Estos scripts documentan principalmente la estructura de seguridad y no representan por sí solos la creación completa de la base de datos PLD.
 
@@ -56,6 +57,8 @@ Los siguientes objetos aparecen utilizados directamente por handlers o módulos 
 - `contacto_solicitud_domicilio`
 - `referencias`
 - `pagos_credito`
+- `credito_disposiciones`
+- `vw_credito_revolvente_saldo`
 
 ### Producto financiero
 
@@ -129,3 +132,17 @@ Cada migración nueva debe agregar aquí, según corresponda:
 Se crea este documento como referencia canónica. No se realizaron cambios de esquema en esta fecha; únicamente se formalizó la obligación de mantener sincronizados:
 
 **código + SQL incremental + estructura documentada + README (cuando aplique) + bitácora**.
+
+
+### 2026-09-22 — Crédito revolvente
+
+Script: `20260922_001_credito_revolvente.sql`
+
+- `catalogo_creditos.es_revolvente BIT NOT NULL DEFAULT 0`.
+- `solicitud_credito.monto_autorizado DECIMAL(18,2) NULL`.
+- `solicitud_credito.fecha_vigencia_inicio DATE NULL`.
+- `solicitud_credito.fecha_vigencia_fin DATE NULL`.
+- Nueva tabla `credito_disposiciones`, relacionada con `solicitud_credito` y `catalogo_moneda_divisa`, con estatus APLICADA/REVERSADA y auditoría.
+- Índices por solicitud/fecha y solicitud/estatus.
+- Nueva vista `vw_credito_revolvente_saldo` para capital dispuesto, capital amortizado, saldo utilizado y disponible.
+- Saldo utilizado y disponible son valores derivados, no fuentes de verdad almacenadas.
