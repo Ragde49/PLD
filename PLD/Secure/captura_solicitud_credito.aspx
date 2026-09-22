@@ -10,6 +10,7 @@
             <div><span class="text-muted">Solicitud ID:</span> <span id="lblSolicitudId" class="fw-bold">—</span></div>
             <div><span class="text-muted">Estatus:</span> <span id="lblEstatus" class="badge bg-secondary">—</span></div>
             <div class="ms-auto d-flex gap-2">
+                <a id="btnIrRevolvente" href="#" class="btn btn-outline-primary btn-sm d-none">Administrar revolvente</a>
                 <button type="button" id="btnNuevo" class="btn btn-outline-secondary btn-sm">Nuevo</button>
                 <button type="button" id="btnFinalizar" class="btn btn-success btn-sm">Finalizar</button>
             </div>
@@ -42,6 +43,7 @@
                 <div class="col-md-4">
                     <label class="form-label">Producto financiero</label>
                     <select class="form-select" id="producto_financiero_id"></select>
+                    <div id="productoTipoCreditoAyuda" class="form-text"></div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Periodicidad</label>
@@ -755,8 +757,43 @@
         }
     }
 
+    function productoSeleccionadoEsRevolvente() {
+        const el = document.getElementById('producto_financiero_id');
+        if (!el || !el.value || el.selectedIndex < 0) return false;
+        const opt = el.options[el.selectedIndex];
+        return opt?.dataset?.esRevolvente === '1';
+    }
+
+    function actualizarUIRevolvente() {
+        const esRev = productoSeleccionadoEsRevolvente() || !!SOL_DATA?.es_revolvente;
+        const estatus = (SOL_DATA?.estatus || document.getElementById('lblEstatus')?.textContent || '').toString().trim().toUpperCase();
+        const ayuda = document.getElementById('productoTipoCreditoAyuda');
+        const tabAmort = document.getElementById('tab-amortizacion');
+        const btnRev = document.getElementById('btnIrRevolvente');
+
+        if (ayuda) {
+            ayuda.textContent = esRev
+                ? 'Producto revolvente: el monto capturado representa la línea solicitada. No aplica tabla fija de amortización.'
+                : '';
+            ayuda.className = esRev ? 'form-text text-primary fw-semibold' : 'form-text';
+        }
+
+        if (tabAmort) {
+            tabAmort.classList.toggle('d-none', esRev);
+        }
+
+        if (btnRev) {
+            const mostrar = esRev && !!SOL_ID && estatus === 'FINALIZADA';
+            btnRev.classList.toggle('d-none', !mostrar);
+            btnRev.href = mostrar ? ('credito_revolvente.aspx?id=' + encodeURIComponent(SOL_ID)) : '#';
+        }
+
+        if (esRev) limpiarAmortizacionUI();
+    }
+
     function onProductoFinancieroChange() {
         const pf = int(document.getElementById('producto_financiero_id')?.value, 0);
+        actualizarUIRevolvente();
         cargarPeriodosProducto(pf, null);
     }
 
@@ -788,6 +825,7 @@
     let TELEFONOS_DATA = [];
     let EMAILS_DATA = [];
     let DOMICILIOS_DATA = [];
+    let PRODUCTOS_DATA = [];
 
     // =================== Init ===================
     document.addEventListener("DOMContentLoaded", function () {
@@ -1035,9 +1073,35 @@
     }
 
 
+    async function cargarProductosFinancieros() {
+        const el = document.getElementById('producto_financiero_id');
+        if (!el) return;
+
+        el.innerHTML = '<option value="">Cargando...</option>';
+        const r = await fetch(H_CAT + '?action=producto_financiero');
+        const j = await r.json();
+
+        if (!j.ok) {
+            el.innerHTML = '<option value="">Error</option>';
+            PRODUCTOS_DATA = [];
+            return;
+        }
+
+        PRODUCTOS_DATA = j.data || [];
+        el.innerHTML = '<option value="">— Seleccionar —</option>';
+        for (const row of PRODUCTOS_DATA) {
+            const opt = document.createElement('option');
+            opt.value = row.id;
+            opt.textContent = (row.descripcion || '').toString();
+            opt.dataset.esRevolvente = (row.es_revolvente === true || row.es_revolvente === 1 || row.es_revolvente === '1') ? '1' : '0';
+            opt.dataset.tipoCredito = (row.tipo_credito || '').toString();
+            el.appendChild(opt);
+        }
+    }
+
     async function cargarCombos() {
         try {
-            await cargarCombo(H_CAT + '?action=producto_financiero', 'producto_financiero_id', 'id', 'descripcion');
+            await cargarProductosFinancieros();
             await cargarCombo(H_CAT + '?action=canales_pago', 'canal_pago_id', 'id', 'descripcion');
             await cargarCombo(H_CAT + '?action=destinos_recursos', 'destino_recursos_id', 'id', 'descripcion');
             await cargarCombo(H_CAT + '?action=origen_recursos', 'origen_recursos_id', 'id', 'descripcion');  // <-- SOLO AQUÍ
@@ -1227,6 +1291,7 @@
             // OPERACIÓN
             // ============================
             setSelect('producto_financiero_id', sol.producto_financiero_id);
+            actualizarUIRevolvente();
             await cargarPeriodosProducto(sol.producto_financiero_id, sol.producto_financiero_periodo_id);
             setSelect('canal_pago_id', sol.canal_pago_id);
             setSelect('destino_recursos_id', sol.destino_recursos_id);
@@ -1291,6 +1356,7 @@
                 TELEFONOS_DATA = [];
                 EMAILS_DATA = [];
                 DOMICILIOS_DATA = [];
+        PRODUCTOS_DATA = PRODUCTOS_DATA || [];
                 document.getElementById('lblContactoId').textContent = '—';
             }
 
@@ -1298,7 +1364,12 @@
             // PLD DETALLE
             // ============================
             await cargarPLDDetalle();
-            await cargarAmortizacionCondusef(false);
+            if (!productoSeleccionadoEsRevolvente() && !SOL_DATA?.es_revolvente) {
+                await cargarAmortizacionCondusef(false);
+            } else {
+                limpiarAmortizacionUI();
+            }
+            actualizarUIRevolvente();
 
         } catch (e) {
             swal.fire('Solicitud', 'Error: ' + e, 'error');
@@ -2186,6 +2257,14 @@
     }
 
     async function cargarAmortizacionCondusef(showErrors = true) {
+        if (productoSeleccionadoEsRevolvente() || SOL_DATA?.es_revolvente) {
+            limpiarAmortizacionUI();
+            if (showErrors) {
+                swal.fire('Amortización', 'La tabla de amortización fija CONDUSEF no aplica a créditos revolventes.', 'info');
+            }
+            return;
+        }
+
         if (!SOL_ID) {
             limpiarAmortizacionUI();
             return;
