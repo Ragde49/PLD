@@ -39,7 +39,8 @@ Los módulos principales identificados en el código son:
 | Contacto | Teléfonos, correos y domicilios ligados a la solicitud |
 | Evaluación PLD | Precarga de factores, cálculo, guardado y detalle de resultado |
 | Alertas PLD | Reglas, bandeja, asignación, bitácora, generación manual y automática |
-| Pagos de crédito | Consulta, aplicación, referencias y cancelación |
+| Pagos de crédito | Consulta, aplicación, referencias y cancelación; saldo revolvente derivado cuando aplica |
+| Crédito revolvente | Configuración de línea, disposiciones, saldo utilizado, disponible e historial operativo |
 | Productos financieros | Catálogo, detalle, periodos y parámetros del producto |
 | Clasificación / scoring | Puntajes, pesos y configuración por categorías |
 | Catálogos | Países, estados, municipios, nacionalidades, ocupaciones, origen/destino de recursos, moneda, canal de pago, etc. |
@@ -159,6 +160,7 @@ Los handlers reciben una acción por request y devuelven datos/JSON según el ca
 | `contacto_solicitud_handler.ashx` | crear/obtener contacto; altas y actualización de teléfonos, correos y domicilios; selección de principal y activación/desactivación |
 | `handler_alertas_pld.ashx` | catálogos de reglas/motivos/categorías, bandeja, obtener, bitácora, generación manual/automática, cambio de estatus y asignación |
 | `handler_pagos_credito.ashx` | `consultar`, `obtener`, `catalogos`, `buscar_referencias`, `guardar_aplicar`, `cancelar` |
+| `handler_credito_revolvente.ashx` | `resumen`, `configurar_linea`, `listar_disposiciones`, `crear_disposicion`, `reversar_disposicion`, `historial` |
 | `producto_financiero_handler.ashx` | `list`, `get`, `create`, `update`, `delete` y administración de periodos |
 | `seguridad_handler.ashx` | login, cambio de contraseña, usuarios, roles, puestos, páginas, menú y permisos |
 | `catalogos_handler.ashx` | catálogos compartidos para captura y operación |
@@ -251,6 +253,24 @@ Objetos principales identificados:
 - `catalogo_moneda_divisa`
 - `catalogo_tipo_pago`
 - `vw_pagos_credito_pld`
+
+---
+
+## Crédito revolvente
+
+El crédito revolvente reutiliza `solicitud_credito` como cabecera de la línea y `pagos_credito` para los abonos. Los tipos de crédito se marcan mediante `catalogo_creditos.es_revolvente`.
+
+Objetos incorporados por `PLD/SQL/20260922_001_credito_revolvente.sql`:
+
+- `solicitud_credito.monto_autorizado`
+- `solicitud_credito.fecha_vigencia_inicio`
+- `solicitud_credito.fecha_vigencia_fin`
+- `credito_disposiciones`
+- `vw_credito_revolvente_saldo`
+
+El saldo utilizado se deriva como `SUM(disposiciones aplicadas) - SUM(capital de pagos aplicados)`; el disponible es `monto_autorizado - saldo_utilizado`. La pantalla operativa es `Secure/credito_revolvente.aspx`.
+
+La implementación actual no calcula intereses, pago mínimo, prelación de pagos, mora ni estado de cuenta contractual/regulatorio; esas reglas permanecen pendientes de definición funcional.
 
 ---
 
