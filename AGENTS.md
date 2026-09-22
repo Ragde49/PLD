@@ -125,9 +125,11 @@ Cuando el modelo actual no soporte toda la trazabilidad requerida, señalar la l
 2. Compilar `PLD.sln` cuando el cambio afecte código, proyecto o referencias.
 3. Ejecutar las pruebas funcionales razonables del módulo afectado.
 4. Validar acceso autorizado y no autorizado cuando se toque UI/handlers/seguridad.
-5. Actualizar el archivo de tarea de `cambios_codex/`, si aplica.
-6. Registrar el resultado en `BITACORA_CAMBIOS.md`.
-7. Reportar claramente:
+5. **Actualizar `README.md` si el cambio modifica arquitectura, módulos, flujos, configuración, requisitos, endpoints, seguridad, reglas de negocio, dependencias o forma de operación.** No dejar el README desfasado respecto al código.
+6. **Si hubo cualquier cambio de base de datos, actualizar en la misma tarea el SQL incremental y `PLD/SQL/ESTRUCTURA_BASE_DATOS.md`.**
+7. Actualizar el archivo de tarea de `cambios_codex/`, si aplica.
+8. Registrar el resultado en `BITACORA_CAMBIOS.md`.
+9. Reportar claramente:
    - qué cambió;
    - archivos modificados;
    - SQL requerido;
@@ -317,7 +319,40 @@ Los scripts deben ser seguros para el ambiente objetivo e, idealmente, idempoten
 
 No modificar scripts históricos ya aplicados para esconder un cambio nuevo; agregar un incremental, salvo que la tarea indique expresamente otra cosa.
 
-### 8.4 No crear tablas por comodidad
+### 8.4 Estructura de base de datos siempre sincronizada
+
+El archivo canónico de documentación de estructura es:
+
+`PLD/SQL/ESTRUCTURA_BASE_DATOS.md`
+
+**ChatGPT, Codex o cualquier agente que cambie la base de datos debe actualizar ese archivo en la misma tarea.**
+
+Se considera cambio de estructura, entre otros:
+
+- crear, modificar o eliminar tablas;
+- crear, modificar o eliminar columnas;
+- cambiar tipos de datos, nullability, defaults o identity;
+- crear, modificar o eliminar llaves primarias/foráneas;
+- crear, modificar o eliminar índices o constraints;
+- crear, modificar o eliminar vistas;
+- crear, modificar o eliminar stored procedures o funciones;
+- modificar catálogos estructurales o datos semilla necesarios para que funcione el sistema;
+- modificar objetos de seguridad de base de datos utilizados por la aplicación.
+
+Para cada cambio de base de datos es obligatorio:
+
+1. Revisar primero la estructura existente.
+2. Crear el script incremental correspondiente en `PLD/SQL/`.
+3. Actualizar `PLD/SQL/ESTRUCTURA_BASE_DATOS.md` con el estado resultante.
+4. Actualizar `README.md` cuando el cambio afecte instalación, arquitectura, módulos, objetos centrales o forma de operación.
+5. Registrar el cambio en `BITACORA_CAMBIOS.md`.
+6. Registrar dependencias y orden de ejecución cuando aplique.
+
+**Nunca dejar código que dependa de una columna, tabla, vista o procedimiento nuevo sin versionar también el cambio de base de datos.**
+
+Si el repositorio todavía no contiene definición completa de un objeto existente, documentar únicamente lo confirmado y señalar lo desconocido; no inventar columnas ni relaciones.
+
+### 8.5 No crear tablas por comodidad
 
 Antes de crear una tabla:
 
@@ -513,6 +548,8 @@ Una tarea está terminada únicamente si:
 - cumple el alcance;
 - no rompe reglas de seguridad;
 - tiene SQL incremental si lo necesita;
+- si modificó base de datos, actualizó `PLD/SQL/ESTRUCTURA_BASE_DATOS.md`;
+- revisó y actualizó `README.md` cuando el cambio afectó la documentación general del sistema;
 - fue validada de forma proporcional al cambio;
 - actualizó `BITACORA_CAMBIOS.md`;
 - actualizó su archivo en `cambios_codex/` si existe;
@@ -540,9 +577,11 @@ Al terminar una tarea, el agente debe dejar un resumen breve con:
 1. **Cambio realizado**
 2. **Archivos modificados**
 3. **SQL / migraciones**
-4. **Validación**
-5. **Bitácora**
-6. **Pendientes o riesgos**
+4. **Estructura de BD actualizada** — sí/no/no aplica
+5. **README actualizado** — sí/no/no aplica
+6. **Validación**
+7. **Bitácora**
+8. **Pendientes o riesgos**
 
 No ocultar fallas de compilación, pruebas no ejecutadas o dependencias faltantes.
 
