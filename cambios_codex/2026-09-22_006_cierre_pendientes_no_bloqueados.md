@@ -1,6 +1,6 @@
 # Cierre de pendientes desarrollables sin insumos del cliente
 
-**Estado:** EN_PROGRESO  
+**Estado:** COMPLETADO  
 **Fecha:** 2026-09-22  
 **Solicitante:** Edgar / proyecto PLD  
 **Responsable:** ChatGPT / Bill + Codex
@@ -43,3 +43,41 @@ Avanzar y cerrar todos los pendientes que pueden desarrollarse con reglas ya con
 ## Criterio de terminado
 
 La tarea se marca COMPLETADO cuando no quede desarrollo identificable que pueda implementarse responsablemente con la información ya confirmada en el repositorio y requerimientos recibidos.
+
+
+---
+
+## Resultado de cierre
+
+Se agotó el alcance identificable que podía implementarse sin nuevas decisiones del cliente.
+
+### Completado
+
+- corrección `entidad_nacimiento_id` → `estado_nacimiento_id`;
+- obligatorios de identidad alineados con backend/BD;
+- CURP obligatoria conforme al esquema real;
+- persistencia real del checkbox PEP en `cliente_persona_fisica.puesto_politico`;
+- UX de selección de pagos con producto y tipo de crédito;
+- corrección de clasificación `NO EFECTIVO`;
+- listas manuales PLD/PEP versionadas con XLSX/CSV;
+- consulta exacta y auditoría de listas;
+- integración de listas con Identidad;
+- investigación de alertas con comentario, conclusión e historial;
+- preflight integral adicional;
+- README, estructura de BD y proyecto sincronizados.
+
+### Únicos pendientes funcionales
+
+Quedan solamente asuntos que requieren definición/insumo del cliente:
+
+1. Fase 3 financiera del revolvente.
+2. Umbrales PLD del perfil transaccional.
+3. Definición de perfil esperado de disposiciones y reglas avanzadas.
+4. Estado de cuenta: muestra y formato.
+5. TXT regulatorios: layouts/instructivos/ejemplos vigentes.
+6. Listas/PEP: similitud, homónimos, bloqueo/autorización y proveedor externo.
+7. Relación institucional entre resultado de investigación y estatus de alerta, si desean automatizarla.
+
+### Validación diferida por instrucción del solicitante
+
+Compilación, aplicación de migraciones y QA integral se ejecutarán al final, una vez incorporadas las respuestas del cliente.
