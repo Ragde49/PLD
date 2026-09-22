@@ -115,8 +115,8 @@
                             <input type="text" class="form-control" id="cli_rfc" maxlength="13" placeholder="GODE561231GR8" required>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">CURP</label>
-                            <input type="text" class="form-control" id="cli_curp" maxlength="18" placeholder="GODE561231HDFRRN09">
+                            <label class="form-label">CURP <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cli_curp" maxlength="18" placeholder="GODE561231HDFRRN09" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Cliente ID</label>
@@ -1563,10 +1563,10 @@
         const cliId = int(document.getElementById('cli_id').value, 0);
         const p = leerCliente();
 
-        if (!p.rfc || !p.primer_nombre || !p.ap_paterno || !p.fecha_nacimiento || !p.sexo || !p.estado_civil) {
+        if (!p.rfc || !p.curp || !p.primer_nombre || !p.ap_paterno || !p.fecha_nacimiento || !p.sexo || !p.estado_civil) {
             return swal.fire(
                 'Identidad',
-                'Completa los campos obligatorios: RFC, Primer nombre, Apellido paterno, Fecha de nacimiento, Sexo y Estado civil.',
+                'Completa los campos obligatorios: RFC, CURP, Primer nombre, Apellido paterno, Fecha de nacimiento, Sexo y Estado civil.',
                 'warning'
             );
         }
