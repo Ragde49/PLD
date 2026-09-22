@@ -6,6 +6,27 @@ Registro funcional y técnico de cambios relevantes del repositorio.
 
 ---
 
+## 2026-09-22 — Roadmap de crédito revolvente hasta RC para QA
+
+**Autor/agente:** ChatGPT / Bill  
+**Resumen:** Se ordenó el trabajo restante del crédito revolvente en fases hasta llegar a una versión candidata para QA, separando lo ya implementado, lo que depende de reglas de negocio aún no confirmadas y lo que no debe bloquear la primera entrega operativa.
+
+**Archivos principales:**
+- `cambios_codex/2026-09-22_002_plan_revolvente_hasta_rc_qa.md`
+- `BITACORA_CAMBIOS.md`
+
+**Base de datos / SQL:** Sin cambios.
+
+**Estructura de BD actualizada:** No aplica.
+
+**README actualizado:** No aplica; no cambió el funcionamiento del sistema.
+
+**Validación:** Revisión documental contra la implementación actual del revolvente, el diseño previo y las reglas maestras de `AGENTS.md`.
+
+**Observaciones:** La primera RC puede excluir estado de cuenta final, TXT regulatorios y PLD avanzado de disposiciones. Las reglas financieras automáticas siguen condicionadas a definición aprobada.
+
+---
+
 ## 2026-09-22 — Implementación de crédito revolvente (Fases 1 y 2)
 
 **Autor/agente:** ChatGPT / Bill  
