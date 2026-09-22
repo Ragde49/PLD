@@ -406,6 +406,23 @@ Entre los objetos centrales observados se encuentran:
 
 ---
 
+## Preparación RC-QA de crédito revolvente
+
+Artefactos de validación:
+
+- `PLD/SQL/20260922_003_preflight_rc_revolvente.sql`
+- `PLD/Docs md/RC_QA_CREDITO_REVOLVENTE.md`
+
+Orden SQL para un ambiente existente:
+
+1. `20260922_001_credito_revolvente.sql`
+2. `20260922_002_perfil_transaccional_cliente.sql`
+3. `20260922_003_preflight_rc_revolvente.sql`
+
+El preflight no sustituye la compilación ni las pruebas funcionales. La liberación a QA requiere además build Debug/Release, ejecución de migraciones en base de pruebas y smoke/regresión/seguridad con usuarios reales.
+
+---
+
 ## Configuración local
 
 `Web.config` está excluido deliberadamente por `.gitignore` y **no debe subirse con secretos**.
