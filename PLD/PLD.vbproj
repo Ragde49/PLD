@@ -174,6 +174,8 @@
     <Content Include="SQL\20260922_002_perfil_transaccional_cliente.sql" />
     <Content Include="SQL\20260922_003_preflight_rc_revolvente.sql" />
     <Content Include="SQL\20260922_004_listas_pld.sql" />
+    <Content Include="SQL\20260922_005_alertas_investigacion.sql" />
+    <Content Include="SQL\20260922_006_preflight_integral_pld.sql" />
     <Content Include="Docs md\RC_QA_CREDITO_REVOLVENTE.md" />
     <Content Include="Web.config" />
     <Content Include="Handlers\solicitudPFHandler.ashx" />
