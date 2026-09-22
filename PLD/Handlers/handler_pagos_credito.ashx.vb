@@ -360,78 +360,45 @@ Public Class handler_pagos_credito
             respuesta("data") = New List(Of Dictionary(Of String, Object))()
             Return respuesta
         End If
-
         If limite <= 0 Then limite = 20
         If limite > 20 Then limite = 20
 
         Dim incluirClientes As Boolean = (modo = "filtro")
         Dim sql As String =
             ";WITH referencias AS (" &
-            " SELECT " &
-            "   CAST(N'credito' AS nvarchar(10)) AS tipo, " &
-            "   sc.id AS solicitud_credito_id, sc.cliente_id, " &
-            "   LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre, ''), ' ', ISNULL(c.segundo_nombre, ''), ' ', ISNULL(c.apellido_paterno, ''), ' ', ISNULL(c.apellido_materno, '')), '  ', ' '), '  ', ' '))) AS cliente_nombre, " &
-            "   c.rfc, c.curp, sc.monto_solicitado, " &
-            "   CAST(COALESCE(ultimo.saldo_despues_pago, sc.monto_solicitado, 0) AS decimal(18,2)) AS saldo_vigente, " &
-            "   sc.estatus AS estatus_solicitud, sc.plazo, sc.moneda_id, md.moneda, md.clave AS moneda_clave, " &
-            "   sc.canal_pago_id, cp.canal AS canal_pago, ISNULL(secuencia.ultimo_numero, 0) + 1 AS siguiente_numero_pago, " &
-            "   CASE " &
-            "     WHEN TRY_CONVERT(int, @qExacta) = sc.id THEN 0 " &
-            "     WHEN TRY_CONVERT(int, @qExacta) = sc.cliente_id THEN 1 " &
-            "     WHEN UPPER(ISNULL(c.rfc, '')) = @qExactaUpper OR UPPER(ISNULL(c.curp, '')) = @qExactaUpper THEN 2 " &
-            "     ELSE 3 " &
-            "   END AS orden " &
+            " SELECT CAST(N'credito' AS nvarchar(10)) AS tipo, sc.id AS solicitud_credito_id, sc.cliente_id, " &
+            " LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre,''),' ',ISNULL(c.segundo_nombre,''),' ',ISNULL(c.apellido_paterno,''),' ',ISNULL(c.apellido_materno,'')),'  ',' '),'  ',' '))) AS cliente_nombre, " &
+            " c.rfc, c.curp, sc.monto_solicitado, " &
+            " CAST(CASE WHEN ISNULL(cc.es_revolvente,0)=1 THEN ISNULL(vr.saldo_utilizado,0) ELSE COALESCE(ultimo.saldo_despues_pago,sc.monto_solicitado,0) END AS decimal(18,2)) AS saldo_vigente, " &
+            " sc.estatus AS estatus_solicitud, sc.plazo, sc.moneda_id, md.moneda, md.clave AS moneda_clave, sc.canal_pago_id, cp.canal AS canal_pago, " &
+            " ISNULL(secuencia.ultimo_numero,0)+1 AS siguiente_numero_pago, cc.nombre_credito AS tipo_credito, ISNULL(cc.es_revolvente,0) AS es_revolvente, " &
+            " sc.monto_autorizado, vr.disponible, " &
+            " CASE WHEN TRY_CONVERT(int,@qExacta)=sc.id THEN 0 WHEN TRY_CONVERT(int,@qExacta)=sc.cliente_id THEN 1 " &
+            "      WHEN UPPER(ISNULL(c.rfc,''))=@qExactaUpper OR UPPER(ISNULL(c.curp,''))=@qExactaUpper THEN 2 ELSE 3 END AS orden " &
             " FROM dbo.solicitud_credito sc " &
-            " LEFT JOIN dbo.cliente_persona_fisica c ON c.id_cliente = sc.cliente_id " &
-            " LEFT JOIN dbo.catalogo_moneda_divisa md ON md.id = sc.moneda_id " &
-            " LEFT JOIN dbo.catalogo_canal_pago cp ON cp.id = sc.canal_pago_id " &
-            " OUTER APPLY (" &
-            "   SELECT TOP 1 pc.saldo_despues_pago " &
-            "   FROM dbo.pagos_credito pc " &
-            "   WHERE pc.solicitud_credito_id = sc.id AND pc.activo = 1 AND pc.estatus = N'APLICADO' " &
-            "   ORDER BY pc.fecha_pago DESC, pc.id DESC" &
-            " ) ultimo " &
-            " OUTER APPLY (" &
-            "   SELECT MAX(pc.numero_pago_en_credito) AS ultimo_numero " &
-            "   FROM dbo.pagos_credito pc " &
-            "   WHERE pc.solicitud_credito_id = sc.id AND pc.activo = 1 AND pc.estatus = N'APLICADO'" &
-            " ) secuencia " &
-            " WHERE sc.activo = 1 AND (" &
-            "      CONVERT(varchar(20), sc.id) LIKE @qLike " &
-            "   OR CONVERT(varchar(20), ISNULL(sc.cliente_id, 0)) LIKE @qLike " &
-            "   OR UPPER(ISNULL(c.rfc, '')) LIKE @qLikeUpper " &
-            "   OR UPPER(ISNULL(c.curp, '')) LIKE @qLikeUpper " &
-            "   OR UPPER(LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre, ''), ' ', ISNULL(c.segundo_nombre, ''), ' ', ISNULL(c.apellido_paterno, ''), ' ', ISNULL(c.apellido_materno, '')), '  ', ' '), '  ', ' ')))) LIKE @qLikeUpper " &
-            " ) " &
+            " LEFT JOIN dbo.cliente_persona_fisica c ON c.id_cliente=sc.cliente_id " &
+            " LEFT JOIN dbo.catalogo_producto_financiero pf ON pf.id=sc.producto_financiero_id " &
+            " LEFT JOIN dbo.catalogo_creditos cc ON cc.id=pf.tipo_credito_id " &
+            " LEFT JOIN dbo.vw_credito_revolvente_saldo vr ON vr.solicitud_credito_id=sc.id " &
+            " LEFT JOIN dbo.catalogo_moneda_divisa md ON md.id=sc.moneda_id " &
+            " LEFT JOIN dbo.catalogo_canal_pago cp ON cp.id=sc.canal_pago_id " &
+            " OUTER APPLY (SELECT TOP 1 pc.saldo_despues_pago FROM dbo.pagos_credito pc WHERE pc.solicitud_credito_id=sc.id AND pc.activo=1 AND pc.estatus=N'APLICADO' ORDER BY pc.fecha_pago DESC,pc.id DESC) ultimo " &
+            " OUTER APPLY (SELECT MAX(pc.numero_pago_en_credito) AS ultimo_numero FROM dbo.pagos_credito pc WHERE pc.solicitud_credito_id=sc.id AND pc.activo=1 AND pc.estatus=N'APLICADO') secuencia " &
+            " WHERE sc.activo=1 AND (CONVERT(varchar(20),sc.id) LIKE @qLike OR CONVERT(varchar(20),ISNULL(sc.cliente_id,0)) LIKE @qLike " &
+            " OR UPPER(ISNULL(c.rfc,'')) LIKE @qLikeUpper OR UPPER(ISNULL(c.curp,'')) LIKE @qLikeUpper " &
+            " OR UPPER(LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre,''),' ',ISNULL(c.segundo_nombre,''),' ',ISNULL(c.apellido_paterno,''),' ',ISNULL(c.apellido_materno,'')),'  ',' '),'  ',' ')))) LIKE @qLikeUpper) " &
             " UNION ALL " &
-            " SELECT " &
-            "   CAST(N'cliente' AS nvarchar(10)) AS tipo, " &
-            "   CAST(NULL AS int) AS solicitud_credito_id, c.id_cliente AS cliente_id, " &
-            "   LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre, ''), ' ', ISNULL(c.segundo_nombre, ''), ' ', ISNULL(c.apellido_paterno, ''), ' ', ISNULL(c.apellido_materno, '')), '  ', ' '), '  ', ' '))) AS cliente_nombre, " &
-            "   c.rfc, c.curp, CAST(NULL AS decimal(18,2)) AS monto_solicitado, CAST(NULL AS decimal(18,2)) AS saldo_vigente, " &
-            "   CAST(NULL AS nvarchar(30)) AS estatus_solicitud, CAST(NULL AS int) AS plazo, CAST(NULL AS int) AS moneda_id, " &
-            "   CAST(NULL AS nvarchar(200)) AS moneda, CAST(NULL AS nvarchar(50)) AS moneda_clave, CAST(NULL AS int) AS canal_pago_id, " &
-            "   CAST(NULL AS nvarchar(200)) AS canal_pago, CAST(NULL AS int) AS siguiente_numero_pago, " &
-            "   CASE " &
-            "     WHEN TRY_CONVERT(int, @qExacta) = c.id_cliente THEN 0 " &
-            "     WHEN UPPER(ISNULL(c.rfc, '')) = @qExactaUpper OR UPPER(ISNULL(c.curp, '')) = @qExactaUpper THEN 1 " &
-            "     ELSE 4 " &
-            "   END AS orden " &
-            " FROM dbo.cliente_persona_fisica c " &
-            " WHERE @incluirClientes = 1 " &
-            "   AND EXISTS (SELECT 1 FROM dbo.solicitud_credito scx WHERE scx.cliente_id = c.id_cliente AND scx.activo = 1) " &
-            "   AND (" &
-            "        CONVERT(varchar(20), c.id_cliente) LIKE @qLike " &
-            "     OR UPPER(ISNULL(c.rfc, '')) LIKE @qLikeUpper " &
-            "     OR UPPER(ISNULL(c.curp, '')) LIKE @qLikeUpper " &
-            "     OR UPPER(LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre, ''), ' ', ISNULL(c.segundo_nombre, ''), ' ', ISNULL(c.apellido_paterno, ''), ' ', ISNULL(c.apellido_materno, '')), '  ', ' '), '  ', ' ')))) LIKE @qLikeUpper " &
-            "   )" &
-            ") " &
-            "SELECT TOP (@limite) tipo, solicitud_credito_id, cliente_id, cliente_nombre, rfc, curp, " &
-            "       monto_solicitado, saldo_vigente, estatus_solicitud, plazo, moneda_id, moneda, moneda_clave, " &
-            "       canal_pago_id, canal_pago, siguiente_numero_pago " &
-            "FROM referencias " &
-            "ORDER BY orden, CASE WHEN tipo = N'cliente' THEN 0 ELSE 1 END, cliente_nombre, solicitud_credito_id DESC;"
+            " SELECT CAST(N'cliente' AS nvarchar(10)), CAST(NULL AS int), c.id_cliente, " &
+            " LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre,''),' ',ISNULL(c.segundo_nombre,''),' ',ISNULL(c.apellido_paterno,''),' ',ISNULL(c.apellido_materno,'')),'  ',' '),'  ',' '))), " &
+            " c.rfc,c.curp,CAST(NULL AS decimal(18,2)),CAST(NULL AS decimal(18,2)),CAST(NULL AS nvarchar(30)),CAST(NULL AS int),CAST(NULL AS int),CAST(NULL AS nvarchar(200)),CAST(NULL AS nvarchar(50)),CAST(NULL AS int),CAST(NULL AS nvarchar(200)),CAST(NULL AS int), " &
+            " CAST(NULL AS nvarchar(150)),CAST(0 AS bit),CAST(NULL AS decimal(18,2)),CAST(NULL AS decimal(18,2)), " &
+            " CASE WHEN TRY_CONVERT(int,@qExacta)=c.id_cliente THEN 0 WHEN UPPER(ISNULL(c.rfc,''))=@qExactaUpper OR UPPER(ISNULL(c.curp,''))=@qExactaUpper THEN 1 ELSE 4 END " &
+            " FROM dbo.cliente_persona_fisica c WHERE @incluirClientes=1 " &
+            " AND EXISTS (SELECT 1 FROM dbo.solicitud_credito scx WHERE scx.cliente_id=c.id_cliente AND scx.activo=1) " &
+            " AND (CONVERT(varchar(20),c.id_cliente) LIKE @qLike OR UPPER(ISNULL(c.rfc,'')) LIKE @qLikeUpper OR UPPER(ISNULL(c.curp,'')) LIKE @qLikeUpper " &
+            " OR UPPER(LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre,''),' ',ISNULL(c.segundo_nombre,''),' ',ISNULL(c.apellido_paterno,''),' ',ISNULL(c.apellido_materno,'')),'  ',' '),'  ',' ')))) LIKE @qLikeUpper)" &
+            ") SELECT TOP (@limite) tipo,solicitud_credito_id,cliente_id,cliente_nombre,rfc,curp,monto_solicitado,saldo_vigente,estatus_solicitud,plazo,moneda_id,moneda,moneda_clave,canal_pago_id,canal_pago,siguiente_numero_pago,tipo_credito,es_revolvente,monto_autorizado,disponible " &
+            "FROM referencias ORDER BY orden,CASE WHEN tipo=N'cliente' THEN 0 ELSE 1 END,cliente_nombre,solicitud_credito_id DESC;"
 
         Dim parametros As New List(Of SqlParameter) From {
             New SqlParameter("@qExacta", SqlDbType.NVarChar, 100) With {.Value = texto},
@@ -441,7 +408,6 @@ Public Class handler_pagos_credito
             New SqlParameter("@incluirClientes", SqlDbType.Bit) With {.Value = incluirClientes},
             New SqlParameter("@limite", SqlDbType.Int) With {.Value = limite}
         }
-
         respuesta("ok") = True
         respuesta("data") = TablaALista(EjecutarTabla(sql, parametros))
         Return respuesta
@@ -456,7 +422,7 @@ Public Class handler_pagos_credito
         Using cn As New SqlConnection(CadenaConexion())
             cn.Open()
 
-            Using tr As SqlTransaction = cn.BeginTransaction()
+            Using tr As SqlTransaction = cn.BeginTransaction(IsolationLevel.Serializable)
                 Try
                     Dim solicitudId As Integer = ToInt(ObtenerParametro(context, "solicitud_credito_id"), 0)
 
@@ -538,13 +504,38 @@ Public Class handler_pagos_credito
                         fechaPago = fechaCapturada.Value
                     End If
 
+                    Dim esRevolvente As Boolean = ToBool(solicitud("es_revolvente"), False)
                     Dim montoCreditoOriginal As Decimal = ToDecimal(ObtenerParametro(context, "monto_credito_original"), ToDecimal(solicitud("monto_solicitado"), 0D))
                     Dim saldoAntes As Decimal = ToDecimal(ObtenerParametro(context, "saldo_antes_pago"), montoCreditoOriginal)
                     Dim montoCapital As Decimal = ToDecimal(ObtenerParametro(context, "monto_capital"), montoPago)
-                    Dim saldoDespues As Decimal = ToDecimal(ObtenerParametro(context, "saldo_despues_pago"), saldoAntes - montoCapital)
+                    Dim saldoDespues As Decimal = 0D
 
-                    If saldoDespues < 0D Then
-                        saldoDespues = 0D
+                    If esRevolvente Then
+                        If solicitud.IsNull("monto_autorizado") Then
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "La línea revolvente no tiene límite autorizado configurado."
+                            tr.Rollback()
+                            Return respuesta
+                        End If
+                        montoCreditoOriginal = Convert.ToDecimal(solicitud("monto_autorizado"), CultureInfo.InvariantCulture)
+                        saldoAntes = ObtenerSaldoUtilizadoRevolvente(cn, tr, solicitudId)
+
+                        If montoCapital < 0D OrElse montoCapital > montoPago Then
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "El capital aplicado debe estar entre cero y el monto total del pago."
+                            tr.Rollback()
+                            Return respuesta
+                        End If
+                        If montoCapital > saldoAntes Then
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "El capital aplicado no puede exceder el capital utilizado de la línea."
+                            tr.Rollback()
+                            Return respuesta
+                        End If
+                        saldoDespues = saldoAntes - montoCapital
+                    Else
+                        saldoDespues = ToDecimal(ObtenerParametro(context, "saldo_despues_pago"), saldoAntes - montoCapital)
+                        If saldoDespues < 0D Then saldoDespues = 0D
                     End If
 
                     Dim montoInteres As Decimal = ToDecimal(ObtenerParametro(context, "monto_interes"), 0D)
@@ -697,82 +688,74 @@ Public Class handler_pagos_credito
         Dim usuario As String = ObtenerUsuario(context)
         Dim pagoId As Integer = ToInt(ObtenerParametro(context, "id"), 0)
         Dim motivo As String = ObtenerParametro(context, "motivo").Trim()
-
+        If pagoId <= 0 Then pagoId = ToInt(ObtenerParametro(context, "pago_credito_id"), 0)
         If pagoId <= 0 Then
-            pagoId = ToInt(ObtenerParametro(context, "pago_credito_id"), 0)
-        End If
-
-        If pagoId <= 0 Then
-            respuesta("ok") = False
-            respuesta("mensaje") = "ID de pago inválido."
-            Return respuesta
+            respuesta("ok") = False : respuesta("mensaje") = "ID de pago inválido." : Return respuesta
         End If
 
         Using cn As New SqlConnection(CadenaConexion())
             cn.Open()
-
-            Using tr As SqlTransaction = cn.BeginTransaction()
+            Using tr As SqlTransaction = cn.BeginTransaction(IsolationLevel.Serializable)
                 Try
-                    Dim sqlExiste As String =
-                        "SELECT COUNT(1) " &
-                        "FROM dbo.pagos_credito " &
-                        "WHERE id = @id AND activo = 1;"
+                    Dim dt As DataTable = EjecutarTablaTransaccion(cn, tr,
+                        "SELECT TOP 1 id,solicitud_credito_id,ISNULL(monto_capital,0) AS monto_capital FROM dbo.pagos_credito WITH (UPDLOCK,HOLDLOCK) WHERE id=@id AND activo=1 AND estatus=N'APLICADO';",
+                        New List(Of SqlParameter) From {New SqlParameter("@id", pagoId)})
+                    If dt.Rows.Count=0 Then
+                        respuesta("ok")=False : respuesta("mensaje")="No se encontró el pago aplicado." : tr.Rollback() : Return respuesta
+                    End If
 
-                    Using cmdExiste As New SqlCommand(sqlExiste, cn, tr)
-                        cmdExiste.Parameters.AddWithValue("@id", pagoId)
+                    Dim pago As DataRow=dt.Rows(0)
+                    Dim solicitudId As Integer=ToInt(pago("solicitud_credito_id"),0)
+                    Dim solicitud As DataRow=ObtenerSolicitud(cn,tr,solicitudId)
 
-                        If Convert.ToInt32(cmdExiste.ExecuteScalar()) = 0 Then
-                            respuesta("ok") = False
-                            respuesta("mensaje") = "No se encontró el pago activo."
-                            tr.Rollback()
-                            Return respuesta
+                    If solicitud IsNot Nothing AndAlso ToBool(solicitud("es_revolvente"),False) Then
+                        If solicitud.IsNull("monto_autorizado") Then
+                            respuesta("ok")=False : respuesta("mensaje")="No se puede cancelar: la línea revolvente no tiene límite autorizado." : tr.Rollback() : Return respuesta
                         End If
-                    End Using
+                        Dim saldoActual As Decimal=ObtenerSaldoUtilizadoRevolvente(cn,tr,solicitudId)
+                        Dim saldoPosterior As Decimal=saldoActual+ToDecimal(pago("monto_capital"),0D)
+                        Dim limiteLinea As Decimal=Convert.ToDecimal(solicitud("monto_autorizado"),CultureInfo.InvariantCulture)
+                        If saldoPosterior>limiteLinea Then
+                            respuesta("ok")=False : respuesta("mensaje")="No se puede cancelar este pago porque disposiciones posteriores utilizaron el disponible recuperado." : tr.Rollback() : Return respuesta
+                        End If
+                    End If
 
-                    Dim sql As String =
-                        "UPDATE dbo.pagos_credito SET " &
-                        "estatus = N'CANCELADO', " &
-                        "activo = 0, " &
-                        "observaciones = CASE WHEN @motivo = '' THEN observaciones ELSE ISNULL(observaciones, '') + CHAR(13) + CHAR(10) + N'Cancelación: ' + @motivo END, " &
-                        "modificado_por = @usuario, " &
-                        "fecha_modificacion = SYSDATETIME() " &
-                        "WHERE id = @id;"
-
-                    Using cmd As New SqlCommand(sql, cn, tr)
-                        cmd.Parameters.AddWithValue("@id", pagoId)
-                        cmd.Parameters.AddWithValue("@motivo", motivo)
-                        cmd.Parameters.AddWithValue("@usuario", usuario)
+                    Using cmd As New SqlCommand("UPDATE dbo.pagos_credito SET estatus=N'CANCELADO',activo=0,observaciones=CASE WHEN @motivo='' THEN observaciones ELSE ISNULL(observaciones,'')+CHAR(13)+CHAR(10)+N'Cancelación: '+@motivo END,modificado_por=@usuario,fecha_modificacion=SYSDATETIME() WHERE id=@id;",cn,tr)
+                        cmd.Parameters.Add("@id",SqlDbType.Int).Value=pagoId
+                        cmd.Parameters.Add("@motivo",SqlDbType.NVarChar,500).Value=motivo
+                        cmd.Parameters.Add("@usuario",SqlDbType.NVarChar,100).Value=usuario
                         cmd.ExecuteNonQuery()
                     End Using
-
                     tr.Commit()
-
-                    respuesta("ok") = True
-                    respuesta("mensaje") = "Pago cancelado correctamente."
-
-                Catch ex As Exception
-                    tr.Rollback()
-                    Throw
+                    respuesta("ok")=True : respuesta("mensaje")="Pago cancelado correctamente."
+                Catch
+                    tr.Rollback() : Throw
                 End Try
             End Using
         End Using
-
         Return respuesta
     End Function
 
     Private Function ObtenerSolicitud(ByVal cn As SqlConnection, ByVal tr As SqlTransaction, ByVal solicitudId As Integer) As DataRow
         Dim sql As String =
-            "SELECT TOP 1 id, cliente_id, monto_solicitado, plazo, moneda_id, canal_pago_id, estatus, activo, fecha_creacion " &
-            "FROM dbo.solicitud_credito " &
-            "WHERE id = @id AND activo = 1;"
-
-        Dim dt As DataTable = EjecutarTablaTransaccion(cn, tr, sql, New List(Of SqlParameter) From {
-            New SqlParameter("@id", solicitudId)
-        })
-
-        If dt.Rows.Count = 0 Then Return Nothing
-
+            "SELECT TOP 1 sc.id,sc.cliente_id,sc.monto_solicitado,sc.monto_autorizado,sc.plazo,sc.moneda_id,sc.canal_pago_id,sc.estatus,sc.activo,sc.fecha_creacion,sc.fecha_vigencia_inicio,sc.fecha_vigencia_fin,ISNULL(cc.es_revolvente,0) AS es_revolvente,cc.nombre_credito AS tipo_credito " &
+            "FROM dbo.solicitud_credito sc WITH (UPDLOCK,HOLDLOCK) LEFT JOIN dbo.catalogo_producto_financiero pf ON pf.id=sc.producto_financiero_id LEFT JOIN dbo.catalogo_creditos cc ON cc.id=pf.tipo_credito_id WHERE sc.id=@id AND sc.activo=1;"
+        Dim dt As DataTable = EjecutarTablaTransaccion(cn,tr,sql,New List(Of SqlParameter) From {New SqlParameter("@id",solicitudId)})
+        If dt.Rows.Count=0 Then Return Nothing
         Return dt.Rows(0)
+    End Function
+
+    Private Function ObtenerSaldoUtilizadoRevolvente(ByVal cn As SqlConnection, ByVal tr As SqlTransaction, ByVal solicitudId As Integer) As Decimal
+        Dim dispuesto As Decimal=0D, amortizado As Decimal=0D
+        Using cmd As New SqlCommand("SELECT ISNULL(SUM(monto),0) FROM dbo.credito_disposiciones WITH (UPDLOCK,HOLDLOCK) WHERE solicitud_credito_id=@id AND activo=1 AND estatus=N'APLICADA';",cn,tr)
+            cmd.Parameters.Add("@id",SqlDbType.Int).Value=solicitudId
+            dispuesto=Convert.ToDecimal(cmd.ExecuteScalar(),CultureInfo.InvariantCulture)
+        End Using
+        Using cmd As New SqlCommand("SELECT ISNULL(SUM(ISNULL(monto_capital,0)),0) FROM dbo.pagos_credito WITH (UPDLOCK,HOLDLOCK) WHERE solicitud_credito_id=@id AND activo=1 AND estatus=N'APLICADO';",cn,tr)
+            cmd.Parameters.Add("@id",SqlDbType.Int).Value=solicitudId
+            amortizado=Convert.ToDecimal(cmd.ExecuteScalar(),CultureInfo.InvariantCulture)
+        End Using
+        Return dispuesto-amortizado
     End Function
 
     Private Function ObtenerDescripcionTipoPago(ByVal cn As SqlConnection, ByVal tr As SqlTransaction, ByVal tipoPagoId As Integer) As String
