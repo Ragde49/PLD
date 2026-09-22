@@ -1,6 +1,6 @@
 # Fase 4 — Perfil transaccional y PLD del crédito revolvente
 
-**Estado:** EN_PROGRESO  
+**Estado:** COMPLETADO  
 **Fecha:** 2026-09-22  
 **Solicitante:** Edgar / proyecto PLD  
 **Responsable:** ChatGPT / Bill + Codex
@@ -61,3 +61,39 @@ Implementar la base técnica del perfil transaccional esperado del cliente y com
 ## Pendiente para cierre funcional PLD
 
 El cliente debe definir los umbrales y criterios que convierten una desviación en condición de revisión. Hasta entonces la infraestructura queda disponible pero sin reglas sembradas.
+
+
+---
+
+## Resultado de implementación
+
+**Estado final:** COMPLETADO dentro del alcance técnico aprobado.
+
+Implementado:
+
+- campos de perfil esperado y auditoría en `cliente_persona_fisica`;
+- captura/actualización/consulta desde identidad del cliente;
+- validaciones frontend/backend/constraint para valores no negativos;
+- vista `vw_cliente_perfil_transaccional_mensual`;
+- comparación mensual esperado vs real;
+- desviaciones absolutas y porcentuales;
+- nuevo tipo configurable de evaluación `PERFIL_TRANSACCIONAL`;
+- evaluación automática junto con el flujo completo de alertas posterior al pago;
+- deduplicación por cliente y periodo;
+- descripción explicable esperado vs real;
+- resumen de perfil en `credito_revolvente.aspx`;
+- migración incluida en `PLD.vbproj`;
+- README y estructura de BD actualizados.
+
+No se insertaron reglas ni umbrales PLD.
+
+### Pendiente funcional
+
+Para ampliar el alertamiento se requiere del cliente:
+
+1. umbral de desviación de cantidad de pagos;
+2. umbral de desviación de monto;
+3. dirección de la desviación relevante (por encima, por debajo o ambas);
+4. si se incorporará un perfil esperado de disposiciones.
+
+Estos pendientes no invalidan la base técnica ni deben interpretarse como reglas implícitas.
