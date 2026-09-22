@@ -338,10 +338,36 @@ Public Class handler_credito_revolvente
                     End If
 
                     Dim saldos = ObtenerSaldos(cn, tr, solicitudId, True)
+
+                    If saldos("saldo_utilizado") < 0D Then
+                        tr.Rollback()
+                        respuesta("ok") = False
+                        respuesta("mensaje") = "La línea presenta capital amortizado mayor al capital dispuesto. Debe corregirse antes de reconfigurarla."
+                        Return respuesta
+                    End If
+
                     If montoAutorizado < saldos("saldo_utilizado") Then
                         tr.Rollback()
                         respuesta("ok") = False
                         respuesta("mensaje") = "El límite autorizado no puede ser menor al capital actualmente utilizado."
+                        Return respuesta
+                    End If
+
+                    Dim movimientosFueraVigencia As Integer = 0
+                    Using cmdV As New SqlCommand(
+                        "SELECT COUNT(1) FROM dbo.credito_disposiciones WITH (UPDLOCK,HOLDLOCK) " &
+                        "WHERE solicitud_credito_id=@id AND activo=1 AND estatus=N'APLICADA' " &
+                        "AND (CAST(fecha_disposicion AS date)<@inicio OR CAST(fecha_disposicion AS date)>@fin);", cn, tr)
+                        cmdV.Parameters.Add("@id", SqlDbType.Int).Value = solicitudId
+                        cmdV.Parameters.Add("@inicio", SqlDbType.Date).Value = fechaInicio.Value.Date
+                        cmdV.Parameters.Add("@fin", SqlDbType.Date).Value = fechaFin.Value.Date
+                        movimientosFueraVigencia = Convert.ToInt32(cmdV.ExecuteScalar())
+                    End Using
+
+                    If movimientosFueraVigencia > 0 Then
+                        tr.Rollback()
+                        respuesta("ok") = False
+                        respuesta("mensaje") = "La nueva vigencia dejaría disposiciones aplicadas fuera del periodo autorizado."
                         Return respuesta
                     End If
 
@@ -385,6 +411,15 @@ Public Class handler_credito_revolvente
 
         Using cn As New SqlConnection(CnStr())
             cn.Open()
+
+            Dim cab As DataRow = ObtenerCabecera(cn, Nothing, solicitudId, False)
+            Dim err As String = ValidarRevolvente(cab)
+            If err <> "" Then
+                respuesta("ok") = False
+                respuesta("mensaje") = err
+                Return respuesta
+            End If
+
             Dim sql As String =
                 "SELECT id, solicitud_credito_id, fecha_disposicion, monto, moneda_id, referencia, " &
                 "       estatus, activo, observaciones, motivo_reversa, creado_por, fecha_creacion, " &
@@ -657,6 +692,14 @@ Public Class handler_credito_revolvente
 
         Using cn As New SqlConnection(CnStr())
             cn.Open()
+
+            Dim cab As DataRow = ObtenerCabecera(cn, Nothing, solicitudId, False)
+            Dim err As String = ValidarRevolvente(cab)
+            If err <> "" Then
+                respuesta("ok") = False
+                respuesta("mensaje") = err
+                Return respuesta
+            End If
 
             Dim sql As String =
                 ";WITH mov AS (" &
