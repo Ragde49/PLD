@@ -61,6 +61,41 @@
         </div>
 
         <div class="card mb-3">
+            <div class="card-header bg-light fw-semibold">Perfil transaccional del cliente</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="text-muted">Pagos esperados / mes</div>
+                        <div id="perfilPagosEsperados" class="fs-5 fw-semibold">—</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-muted">Pagos realizados este mes</div>
+                        <div id="perfilPagosRealizados" class="fs-5 fw-semibold">—</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-muted">Monto esperado / mes</div>
+                        <div id="perfilMontoEsperado" class="fs-5 fw-semibold">—</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-muted">Monto pagado este mes</div>
+                        <div id="perfilMontoReal" class="fs-5 fw-semibold">—</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted">Desviación en cantidad de pagos</div>
+                        <div id="perfilDesvPagos">—</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted">Desviación en monto</div>
+                        <div id="perfilDesvMonto">—</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-text">Comparativo informativo. No genera rechazo ni clasificación por sí mismo; las alertas dependen de reglas PLD configuradas y aprobadas.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span class="fw-semibold">Configuración de la línea</span>
                 <button type="button" id="btnGuardarLinea" class="btn btn-primary btn-sm">Guardar línea</button>
@@ -246,6 +281,23 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("kpiDispuesto").textContent = dinero(resumen.capital_dispuesto);
             document.getElementById("kpiUtilizado").textContent = dinero(resumen.saldo_utilizado);
             document.getElementById("kpiDisponible").textContent = dinero(resumen.disponible);
+
+            document.getElementById("perfilPagosEsperados").textContent =
+                resumen.perfil_pagos_mensuales_esperados ?? "—";
+            document.getElementById("perfilPagosRealizados").textContent =
+                resumen.perfil_pagos_realizados_mes ?? "0";
+            document.getElementById("perfilMontoEsperado").textContent =
+                dinero(resumen.perfil_monto_mensual_esperado);
+            document.getElementById("perfilMontoReal").textContent =
+                dinero(resumen.perfil_monto_pagado_mes ?? 0);
+            document.getElementById("perfilDesvPagos").textContent =
+                resumen.perfil_desviacion_pagos_pct === null || resumen.perfil_desviacion_pagos_pct === undefined
+                    ? "—"
+                    : Number(resumen.perfil_desviacion_pagos_pct).toFixed(2) + "%";
+            document.getElementById("perfilDesvMonto").textContent =
+                resumen.perfil_desviacion_monto_pct === null || resumen.perfil_desviacion_monto_pct === undefined
+                    ? "—"
+                    : Number(resumen.perfil_desviacion_monto_pct).toFixed(2) + "%";
 
             document.getElementById("montoAutorizado").value = resumen.monto_autorizado ?? "";
             document.getElementById("vigenciaInicio").value = fechaInput(resumen.fecha_vigencia_inicio);
