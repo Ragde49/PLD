@@ -8,6 +8,7 @@
             <div class="text-muted">Línea, disposiciones, pagos y saldo disponible.</div>
         </div>
         <div class="d-flex gap-2">
+            <a id="btnIrPagos" href="pagos_credito.aspx" class="btn btn-outline-success btn-sm">Ver pagos</a>
             <a href="solicitud_pf.aspx" class="btn btn-outline-secondary btn-sm">Volver a solicitudes</a>
             <button type="button" id="btnRefrescar" class="btn btn-primary btn-sm">Refrescar</button>
         </div>
@@ -249,6 +250,20 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("montoAutorizado").value = resumen.monto_autorizado ?? "";
             document.getElementById("vigenciaInicio").value = fechaInput(resumen.fecha_vigencia_inicio);
             document.getElementById("vigenciaFin").value = fechaInput(resumen.fecha_vigencia_fin);
+
+            const finalizada = String(resumen.estatus || "").toUpperCase() === "FINALIZADA";
+            document.getElementById("montoAutorizado").disabled = !finalizada;
+            document.getElementById("vigenciaInicio").disabled = !finalizada;
+            document.getElementById("vigenciaFin").disabled = !finalizada;
+            document.getElementById("btnGuardarLinea").disabled = !finalizada;
+            document.getElementById("btnNuevaDisposicion").disabled = !finalizada;
+            document.getElementById("btnIrPagos").href = "pagos_credito.aspx?solicitud_id=" + encodeURIComponent(resumen.solicitud_id);
+
+            if (!finalizada) {
+                const a = document.getElementById("alertaPagina");
+                a.textContent = "La solicitud debe estar FINALIZADA antes de configurar la línea o registrar disposiciones.";
+                a.classList.remove("d-none");
+            }
         } catch (e) {
             mostrarError(e.message);
             throw e;
