@@ -73,12 +73,17 @@
                     </div>
                 </div>
 
-                <!-- 🟡 Listas Negras -->
+                <!-- 🟡 Listas PLD -->
                 <div class="card border-warning mb-4">
-                    <div class="card-header bg-warning text-dark">Catálogos de LISTAS NEGRAS</div>
+                    <div class="card-header bg-warning text-dark">Listas PLD / PEP</div>
                     <div class="card-body">
                         <div class="row g-2">
-                            <a>En construccion. Aqui es donde se va a ligar con Quien es quien?. </a>
+                            <div class="col-md-2">
+                                <a href="listas_pld.aspx" class="btn btn-outline-warning btn-sm w-100">Administrar listas PLD / PEP</a>
+                            </div>
+                            <div class="col-md-10 d-flex align-items-center">
+                                <span class="text-muted small">Carga versiones manuales XLSX/CSV, conserva histórico y permite consulta exacta por nombre, RFC o CURP.</span>
+                            </div>
                         </div>
                     </div>
                 </div>
