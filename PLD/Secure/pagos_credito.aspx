@@ -723,7 +723,8 @@
             function seleccionarCreditoPago(item) {
                 document.getElementById("pagoSolicitudId").value = item.solicitud_credito_id || "";
                 document.getElementById("pagoClienteId").value = item.cliente_id || "";
-                document.getElementById("pagoMontoCreditoOriginal").value = numero(item.monto_solicitado, 2);
+                const esRevolvente = item.es_revolvente === true || item.es_revolvente === 1 || item.es_revolvente === "1";
+                document.getElementById("pagoMontoCreditoOriginal").value = numero(esRevolvente ? item.monto_autorizado : item.monto_solicitado, 2);
                 document.getElementById("pagoSaldoAntes").value = numero(item.saldo_vigente, 2);
                 document.getElementById("pagoSaldoDespues").value = numero(item.saldo_vigente, 2);
                 document.getElementById("pagoNumeroPago").value = item.siguiente_numero_pago || 1;
@@ -736,7 +737,9 @@
                 resumen.textContent = "Solicitud #" + valorSeguro(item.solicitud_credito_id) +
                     " · " + valorSeguro(item.cliente_nombre) +
                     " · RFC: " + (valorSeguro(item.rfc) || "Sin RFC") +
+                    " · Tipo: " + (valorSeguro(item.tipo_credito) || "—") +
                     " · Saldo vigente: $" + numero(item.saldo_vigente, 2) +
+                    (esRevolvente ? " · Disponible: $" + numero(item.disponible, 2) : "") +
                     " · Estatus: " + valorSeguro(item.estatus_solicitud);
                 document.getElementById("pagoCreditoResumenContenedor").classList.remove("d-none");
                 document.getElementById("pagoReferenciaAyuda").textContent = "Crédito seleccionado correctamente.";
