@@ -217,8 +217,9 @@ Un mismo conjunto de entradas debe producir siempre el mismo interés, pago mín
 
 ## 5. Fase 4 — Perfil transaccional y PLD del revolvente
 
+**Estado:** COMPLETADO  
 **Clasificación:** DESEABLE PARA CIERRE PLD, NO DEBE BLOQUEAR LA PRIMERA RC OPERATIVA DEL CRÉDITO  
-**Dependencia:** reglas/umbrales PLD aprobados
+**Pendiente funcional:** umbrales PLD aprobados y perfil esperado de disposiciones
 
 ### Trabajo
 
@@ -235,9 +236,29 @@ Un mismo conjunto de entradas debe producir siempre el mismo interés, pago mín
 4. Toda alerta debe indicar qué dato/regla la originó.
 5. No tratar una alerta como rechazo automático del crédito.
 
+### Resultado
+
+- [x] Perfil declarado de pagos capturado a nivel cliente.
+- [x] Número esperado de pagos por mes.
+- [x] Monto esperado mensual.
+- [x] Auditoría de modificación del perfil.
+- [x] Comparación mensual de pagos reales vs esperados.
+- [x] Desviación absoluta y porcentual de cantidad/monto.
+- [x] Integración con el motor de alertas mediante `PERFIL_TRANSACCIONAL`.
+- [x] Integración automática dentro de la evaluación completa posterior a un pago.
+- [x] Deduplicación mensual de futuras alertas.
+- [x] Contexto esperado vs real incluido en la descripción de futuras alertas.
+- [x] Resumen informativo visible en crédito revolvente.
+- [x] Sin reglas ni umbrales nuevos sembrados.
+
+### Pendiente funcional no bloqueante
+
+- definir umbrales que convierten desviaciones en condiciones de revisión;
+- definir si se incorporará número/monto esperado de disposiciones.
+
 ### Nota
 
-El motor actual de alertas sobre pagos se conserva. No introducir umbrales nuevos sin aprobación.
+El motor actual de alertas sobre pagos se conserva. No se introdujeron umbrales nuevos sin aprobación.
 
 ---
 
