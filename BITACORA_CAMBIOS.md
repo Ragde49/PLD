@@ -6,6 +6,29 @@ Registro funcional y técnico de cambios relevantes del repositorio.
 
 ---
 
+## 2026-09-22 — Diseño técnico-funcional de crédito revolvente
+
+**Autor/agente:** ChatGPT / Bill  
+**Resumen:** Se analizó el punto 10 del requerimiento funcional y se documentó una arquitectura para soportar crédito revolvente sin romper el crédito simple actual. La recomendación conserva `solicitud_credito` como cabecera operativa, conserva `pagos_credito`, agrega conceptualmente disposiciones y cambia el cálculo de saldo revolvente a disposiciones menos capital amortizado.
+
+**Archivos principales:**
+- `cambios_codex/2026-09-22_001_diseno_credito_revolvente.md` — análisis, arquitectura, reglas estructurales, impactos, alternativas, fases y decisiones pendientes.
+- `BITACORA_CAMBIOS.md` — esta entrada.
+
+**Base de datos / SQL:** Sin cambios. No se generaron migraciones; el documento es diseño pendiente de aprobación.
+
+**Estructura de BD actualizada:** No aplica; no cambió el esquema real.
+
+**README actualizado:** No aplica; no cambió el funcionamiento actual del sistema.
+
+**Validación:** Revisión de solicitud, producto financiero, pagos, búsquedas/saldos, UI actual y estructura documentada. Se confirmó que no existe actualmente una entidad de disposiciones/línea ni un saldo revolvente calculado correctamente.
+
+**Commit/PR:** Ver commit Git que contiene esta entrada.
+
+**Observaciones:** No implementar cálculo de interés, pago mínimo, prelación de pagos ni estado de cuenta hasta confirmar las reglas funcionales correspondientes. El diseño estructural recomienda preservar el crédito simple y reutilizar los componentes existentes.
+
+---
+
 ## 2026-09-22 — README y estructura de base de datos obligatoriamente sincronizados
 
 **Autor/agente:** ChatGPT / Bill  
