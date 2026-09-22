@@ -577,7 +577,7 @@
         highlight: [244, 251, 246]
     };
     const H_ALERTAS = '/handlers/handler_alertas_pld.ashx';
-    const H_LISTAS_PLD = '/handlers/handler_listas_pld.ashx';
+    const H_LISTAS_PLD = '/handlers/handler_consulta_listas_pld.ashx';
 
     // =================== Utils ===================
     function num(val, def = 0) { const n = parseFloat((val ?? '').toString()); return isNaN(n) ? def : n; }
