@@ -223,6 +223,44 @@ Public Class handler_credito_revolvente
         Return ""
     End Function
 
+    Private Function ObtenerExtremosHistoricos(ByVal cn As SqlConnection,
+                                               ByVal tr As SqlTransaction,
+                                               ByVal solicitudId As Integer) As Dictionary(Of String, Decimal)
+        Dim resultado As New Dictionary(Of String, Decimal) From {
+            {"minimo", 0D},
+            {"maximo", 0D}
+        }
+
+        Dim sql As String =
+            ";WITH mov AS (" &
+            " SELECT cd.fecha_disposicion AS fecha, 0 AS orden_tipo, cd.id AS movimiento_id, CAST(cd.monto AS decimal(18,2)) AS delta " &
+            " FROM dbo.credito_disposiciones cd WITH (UPDLOCK,HOLDLOCK) " &
+            " WHERE cd.solicitud_credito_id=@id AND cd.activo=1 AND cd.estatus=N'APLICADA' " &
+            " UNION ALL " &
+            " SELECT pc.fecha_pago AS fecha, 1 AS orden_tipo, pc.id AS movimiento_id, CAST(-ISNULL(pc.monto_capital,0) AS decimal(18,2)) AS delta " &
+            " FROM dbo.pagos_credito pc WITH (UPDLOCK,HOLDLOCK) " &
+            " WHERE pc.solicitud_credito_id=@id AND pc.activo=1 AND pc.estatus=N'APLICADO' " &
+            "), saldos AS (" &
+            " SELECT SUM(delta) OVER (ORDER BY fecha, orden_tipo, movimiento_id ROWS UNBOUNDED PRECEDING) AS saldo " &
+            " FROM mov" &
+            ") " &
+            "SELECT ISNULL(MIN(saldo),0) AS minimo, ISNULL(MAX(saldo),0) AS maximo FROM saldos;"
+
+        Dim dt As DataTable = QueryTable(
+            cn, tr, sql,
+            New List(Of SqlParameter) From {
+                New SqlParameter("@id", SqlDbType.Int) With {.Value = solicitudId}
+            }
+        )
+
+        If dt.Rows.Count > 0 Then
+            resultado("minimo") = Money2(Convert.ToDecimal(dt.Rows(0)("minimo"), CultureInfo.InvariantCulture))
+            resultado("maximo") = Money2(Convert.ToDecimal(dt.Rows(0)("maximo"), CultureInfo.InvariantCulture))
+        End If
+
+        Return resultado
+    End Function
+
     Private Function Resumen(ByVal context As HttpContext) As Dictionary(Of String, Object)
         Dim respuesta As New Dictionary(Of String, Object)()
         Dim solicitudId As Integer = ToInt(Param(context, "solicitud_id"), 0)
@@ -548,6 +586,14 @@ Public Class handler_credito_revolvente
                         cmd.Parameters.Add("@usuario", SqlDbType.NVarChar, 100).Value = Usuario(context)
                         nuevoId = Convert.ToInt32(cmd.ExecuteScalar())
                     End Using
+
+                    Dim extremos = ObtenerExtremosHistoricos(cn, tr, solicitudId)
+                    If extremos("minimo") < 0D OrElse extremos("maximo") > limite Then
+                        tr.Rollback()
+                        respuesta("ok") = False
+                        respuesta("mensaje") = "La disposición no puede aplicarse porque rompería la integridad histórica de la línea."
+                        Return respuesta
+                    End If
 
                     tr.Commit()
                     respuesta("ok") = True
