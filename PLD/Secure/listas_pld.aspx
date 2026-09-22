@@ -111,7 +111,8 @@
 
 <script type="text/javascript">
 document.addEventListener("DOMContentLoaded", function () {
-    const H = "/handlers/handler_listas_pld.ashx";
+    const H_ADMIN = "/handlers/handler_listas_pld.ashx";
+    const H_QUERY = "/handlers/handler_consulta_listas_pld.ashx";
 
     function esc(v) {
         const d = document.createElement("div");
@@ -137,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function cargarCatalogos() {
-        const j = await json(H + "?action=catalogos");
+        const j = await json(H_ADMIN + "?action=catalogos");
         const s = document.getElementById("listaId");
         s.innerHTML = '<option value="">— Seleccionar —</option>';
         (j.data || []).forEach(function (x) {
@@ -149,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function cargarCargas() {
-        const j = await json(H + "?action=cargas");
+        const j = await json(H_ADMIN + "?action=cargas");
         const tb = document.getElementById("tbodyCargas");
         tb.innerHTML = "";
         (j.data || []).forEach(function (x) {
@@ -185,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fd.append("archivo", file);
 
         try {
-            const j = await json(H, { method: "POST", body: fd });
+            const j = await json(H_ADMIN, { method: "POST", body: fd });
             Swal.fire("Listas PLD", j.mensaje + " Registros: " + j.total_registros, "success");
             document.getElementById("archivoLista").value = "";
             await cargarCargas();
@@ -209,7 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fd.append("action", "activar");
         fd.append("carga_id", id);
         try {
-            const j = await json(H, { method: "POST", body: fd });
+            const j = await json(H_ADMIN, { method: "POST", body: fd });
             Swal.fire("Listas PLD", j.mensaje, "success");
             await cargarCargas();
         } catch (e) {
@@ -225,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fd.append("curp", document.getElementById("buscarCurp").value.trim());
 
         try {
-            const j = await json(H, { method: "POST", body: fd });
+            const j = await json(H_QUERY, { method: "POST", body: fd });
             document.getElementById("resultadoConsulta").textContent =
                 "Consulta #" + j.consulta_id + " · Coincidencias: " + j.coincidencias + ". " + j.mensaje;
             const tb = document.getElementById("tbodyResultados");
