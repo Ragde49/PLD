@@ -22,6 +22,7 @@
                             <tr>
                                 <th style="width:70px;">ID</th>
                                 <th>Descripción</th>
+                                <th>Revolvente</th>
                                 <th>Impacto</th>
                                 <th>Ocurrencia</th>
                                 <th>Nivel Riesgo P.L.D</th>
@@ -53,6 +54,13 @@
                         <div class="col-md-6">
                             <label class="form-label">Tipo de crédito*</label>
                             <input id="txtDescripcion" type="text" class="form-control" maxlength="150" autocomplete="off" />
+                        </div>
+
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input id="chkRevolvente" class="form-check-input" type="checkbox" />
+                                <label for="chkRevolvente" class="form-check-label">Crédito revolvente</label>
+                            </div>
                         </div>
 
                         <div class="col-md-3">
@@ -134,6 +142,7 @@
             columns: [
                 { data: "id" },
                 { data: "descripcion" },
+                { data: "es_revolvente", render: d => d ? '<span class="badge bg-primary">Sí</span>' : '<span class="badge bg-light text-dark">No</span>' },
                 { data: "impacto" },
                 { data: "probabilidad_txt" },
                 { data: "riesgo" },
@@ -164,6 +173,7 @@
             return {
                 id: r.id ?? r.ID ?? 0,
                 descripcion: r.descripcion ?? r.nombre_credito ?? "",
+                es_revolvente: (r.es_revolvente === true || r.es_revolvente === 1 || r.es_revolvente === "1"),
                 impacto: parseInt(r.impacto ?? 0, 10) || 0,
                 probabilidad: prob,
                 probabilidad_txt: prob === 0 ? "" : (prob + "%"),
@@ -205,6 +215,7 @@
         function limpiarForm(){
             document.getElementById("hidId").value = "";
             document.getElementById("txtDescripcion").value = "";
+            document.getElementById("chkRevolvente").checked = false;
             document.getElementById("inpImpacto").value = "";
             document.getElementById("inpProbabilidad").value = "";
             document.getElementById("inpRiesgo").value = "";
@@ -228,6 +239,7 @@
 
                 document.getElementById("hidId").value = r.id;
                 document.getElementById("txtDescripcion").value = r.descripcion ?? "";
+                document.getElementById("chkRevolvente").checked = (r.es_revolvente === true || r.es_revolvente === 1 || r.es_revolvente === "1");
                 document.getElementById("inpImpacto").value = r.impacto ?? 0;
                 document.getElementById("inpProbabilidad").value = r.probabilidad ?? 0;
                 document.getElementById("inpRiesgo").value = r.nivel_riesgo_pld ?? 0;
@@ -282,6 +294,7 @@
         document.getElementById("btnGuardar").addEventListener("click", async function(){
             const id = parseInt(document.getElementById("hidId").value || "0", 10);
             const descripcion = (document.getElementById("txtDescripcion").value || "").trim();
+            const esRevolvente = document.getElementById("chkRevolvente").checked ? 1 : 0;
             const impacto = parseInt(document.getElementById("inpImpacto").value || "0", 10);
             const prob = parseInt(document.getElementById("inpProbabilidad").value || "0", 10);
             const riesgo = parseFloat(document.getElementById("inpRiesgo").value || "0");
@@ -295,7 +308,7 @@
             if (isNaN(riesgo)){ sw && sw.fire("Dato inválido","Nivel de riesgo debe ser numérico.","warning"); return; }
             if (!(tipoEstado > 0)){ sw && sw.fire("Falta información","Selecciona Tipo de estado de cuenta.","warning"); return; }
 
-            const payload = { id, descripcion, impacto, probabilidad: prob, nivel_riesgo_pld: riesgo, tipo_estado_cuenta_id: tipoEstado, mitigantes, estatus: activo };
+            const payload = { id, descripcion, es_revolvente: esRevolvente, impacto, probabilidad: prob, nivel_riesgo_pld: riesgo, tipo_estado_cuenta_id: tipoEstado, mitigantes, estatus: activo };
 
             try{
                 const op = id > 0 ? "actualizar" : "guardar";
