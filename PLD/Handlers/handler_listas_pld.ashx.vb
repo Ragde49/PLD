@@ -12,6 +12,7 @@ Imports System.IO.Compression
 Imports System.Xml
 Imports System.Security.Cryptography
 Imports System.Text.RegularExpressions
+Imports System.Linq
 
 Public Class handler_listas_pld
     Implements IHttpHandler
