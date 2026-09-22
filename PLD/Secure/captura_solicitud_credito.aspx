@@ -265,6 +265,12 @@
                             <input type="checkbox" class="form-check-input" id="cli_pep">
                             <label class="form-check-label" for="cli_pep">Persona Políticamente Expuesta (PEP)</label>
                         </div>
+                        <div class="col-md-3 mt-3">
+                            <button type="button" id="btnConsultarListasPld" class="btn btn-outline-warning w-100">
+                                Consultar listas PLD / PEP
+                            </button>
+                            <div id="listasPldResultado" class="form-text">Consulta exacta por nombre, RFC o CURP; no modifica automáticamente el estatus PEP.</div>
+                        </div>
                         <div class="col-md-3 form-check mt-4">
                             <input type="checkbox" class="form-check-input" id="cli_acepta_avisos">
                             <label class="form-check-label" for="cli_acepta_avisos">Acepta avisos / privacidad</label>
@@ -571,6 +577,7 @@
         highlight: [244, 251, 246]
     };
     const H_ALERTAS = '/handlers/handler_alertas_pld.ashx';
+    const H_LISTAS_PLD = '/handlers/handler_listas_pld.ashx';
 
     // =================== Utils ===================
     function num(val, def = 0) { const n = parseFloat((val ?? '').toString()); return isNaN(n) ? def : n; }
@@ -922,6 +929,11 @@
                 await cargarMunicipios('dom_municipio', edoId);
             }
         });
+
+        const btnListas = document.getElementById('btnConsultarListasPld');
+        if (btnListas) {
+            btnListas.addEventListener('click', consultarListasPldCliente);
+        }
 
         // Si viene ?id= cargar solicitud
         const idQS = int(qs('id'), 0);
@@ -1747,6 +1759,67 @@
         setSelectByValueOrText('cli_actividad_economica', d.actividad_economica_id, d.actividad_economica);
     }
 
+
+    async function consultarListasPldCliente() {
+        const nombre = [
+            document.getElementById('cli_primer_nombre').value,
+            document.getElementById('cli_segundo_nombre').value,
+            document.getElementById('cli_ap_paterno').value,
+            document.getElementById('cli_ap_materno').value
+        ].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+        const rfc = (document.getElementById('cli_rfc').value || '').trim();
+        const curp = (document.getElementById('cli_curp').value || '').trim();
+        const clienteId = int(document.getElementById('cli_id').value, 0);
+
+        if (!nombre && !rfc && !curp) {
+            return swal.fire('Listas PLD', 'Captura al menos nombre, RFC o CURP antes de consultar.', 'warning');
+        }
+
+        const fd = new FormData();
+        fd.append('action', 'buscar');
+        fd.append('nombre', nombre);
+        fd.append('rfc', rfc);
+        fd.append('curp', curp);
+        if (clienteId > 0) fd.append('cliente_id', clienteId);
+
+        try {
+            const resp = await fetch(H_LISTAS_PLD, { method: 'POST', body: fd });
+            const j = await resp.json();
+            if (!resp.ok || !j.ok) {
+                return swal.fire('Listas PLD', j.mensaje || 'No fue posible consultar las listas.', 'error');
+            }
+
+            const info = document.getElementById('listasPldResultado');
+            info.textContent = 'Consulta #' + j.consulta_id + ' · coincidencias exactas: ' + j.coincidencias + '.';
+
+            if (!j.data || j.data.length === 0) {
+                return swal.fire('Listas PLD', 'Sin coincidencias exactas en las versiones vigentes.', 'success');
+            }
+
+            const filas = j.data.map(x =>
+                '<tr>' +
+                '<td>' + cleanText(x.lista, '') + '</td>' +
+                '<td>' + cleanText(x.tipo_coincidencia, '') + '</td>' +
+                '<td>' + cleanText(x.nombre, '') + '</td>' +
+                '<td>' + cleanText(x.rfc, '') + '</td>' +
+                '<td>' + cleanText(x.curp, '') + '</td>' +
+                '</tr>'
+            ).join('');
+
+            return Swal.fire({
+                title: 'Coincidencias exactas encontradas',
+                icon: 'warning',
+                width: 900,
+                html:
+                    '<p class="text-start">La coincidencia requiere revisión y no confirma por sí sola que sea la misma persona.</p>' +
+                    '<div class="table-responsive"><table class="table table-sm table-bordered">' +
+                    '<thead><tr><th>Lista</th><th>Coincidencia</th><th>Nombre</th><th>RFC</th><th>CURP</th></tr></thead>' +
+                    '<tbody>' + filas + '</tbody></table></div>'
+            });
+        } catch (e) {
+            swal.fire('Listas PLD', 'Error: ' + e, 'error');
+        }
+    }
 
     // =================== Contacto (igual) ===================
 
