@@ -84,7 +84,14 @@ BEGIN
         WHERE ruta='/handlers/handler_listas_pld.ashx' AND activo=1 AND es_handler=1
     )
         INSERT INTO @errores(validacion,detalle)
-        VALUES(N'SEGURIDAD_LISTAS_HANDLER',N'No está registrado/activo el handler de Listas PLD.');
+        VALUES(N'SEGURIDAD_LISTAS_HANDLER',N'No está registrado/activo el handler administrativo de Listas PLD.');
+
+    IF NOT EXISTS (
+        SELECT 1 FROM dbo.seguridad_paginas
+        WHERE ruta='/handlers/handler_consulta_listas_pld.ashx' AND activo=1 AND es_handler=1
+    )
+        INSERT INTO @errores(validacion,detalle)
+        VALUES(N'SEGURIDAD_LISTAS_CONSULTA',N'No está registrado/activo el handler de consulta de Listas PLD.');
 END;
 
 IF OBJECT_ID('dbo.seguridad_pagina_handler','U') IS NOT NULL
@@ -108,11 +115,11 @@ BEGIN
         JOIN dbo.seguridad_paginas p ON p.id=ph.pagina_id
         JOIN dbo.seguridad_paginas h ON h.id=ph.handler_id
         WHERE p.ruta='/secure/captura_solicitud_credito.aspx'
-          AND h.ruta='/handlers/handler_listas_pld.ashx'
+          AND h.ruta='/handlers/handler_consulta_listas_pld.ashx'
           AND ph.activo=1
     )
         INSERT INTO @errores(validacion,detalle)
-        VALUES(N'SEGURIDAD_IDENTIDAD_LISTAS',N'Falta relación del handler Listas PLD con Captura de Solicitud.');
+        VALUES(N'SEGURIDAD_IDENTIDAD_LISTAS',N'Falta relación del handler de consulta de Listas PLD con Captura de Solicitud.');
 END;
 
 IF EXISTS(SELECT 1 FROM @errores)
