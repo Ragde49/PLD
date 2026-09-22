@@ -270,6 +270,10 @@ Objetos incorporados por `PLD/SQL/20260922_001_credito_revolvente.sql`:
 
 El saldo utilizado se deriva como `SUM(disposiciones aplicadas) - SUM(capital de pagos aplicados)`; el disponible es `monto_autorizado - saldo_utilizado`. La pantalla operativa es `Secure/credito_revolvente.aspx`.
 
+La captura de solicitud identifica explícitamente los productos revolventes. Para ellos, `monto_solicitado` conserva el significado de línea solicitada y la tabla fija de amortización CONDUSEF se bloquea tanto en frontend como en backend. La configuración de límite/vigencia y las disposiciones solo se habilitan cuando la solicitud está `FINALIZADA`.
+
+La navegación operativa queda conectada entre Consulta PF → Crédito Revolvente → Pagos, manteniendo separado el comportamiento de crédito simple.
+
 La implementación actual no calcula intereses, pago mínimo, prelación de pagos, mora ni estado de cuenta contractual/regulatorio; esas reglas permanecen pendientes de definición funcional.
 
 ---
