@@ -75,6 +75,12 @@ Public Class handler_alertas_pld
                 Case "asignar"
                     respuesta = AsignarAlerta(context)
 
+                Case "investigacion"
+                    respuesta = ConsultarInvestigacion(context)
+
+                Case "agregar_investigacion"
+                    respuesta = AgregarInvestigacion(context)
+
                 Case Else
                     respuesta("ok") = False
                     respuesta("mensaje") = "Acción no válida."
@@ -395,6 +401,119 @@ Public Class handler_alertas_pld
 
         respuesta("ok") = True
         respuesta("data") = TablaALista(dt)
+
+        Return respuesta
+    End Function
+
+    Private Function ConsultarInvestigacion(ByVal context As HttpContext) As Dictionary(Of String, Object)
+        Dim respuesta As New Dictionary(Of String, Object)()
+        Dim alertaId As Integer = ToInt(ObtenerParametro(context, "alerta_id"), 0)
+
+        If alertaId <= 0 Then
+            respuesta("ok") = False
+            respuesta("mensaje") = "ID de alerta inválido."
+            Return respuesta
+        End If
+
+        Dim dt As DataTable = EjecutarTabla(
+            "SELECT id, alerta_id, resultado, comentario, categoria_alerta, origen_evento, usuario, fecha_investigacion " &
+            "FROM dbo.alertas_pld_investigacion WHERE alerta_id=@alerta_id " &
+            "ORDER BY fecha_investigacion DESC, id DESC;",
+            New List(Of SqlParameter) From {
+                New SqlParameter("@alerta_id", SqlDbType.Int) With {.Value = alertaId}
+            }
+        )
+
+        respuesta("ok") = True
+        respuesta("data") = TablaALista(dt)
+        Return respuesta
+    End Function
+
+    Private Function AgregarInvestigacion(ByVal context As HttpContext) As Dictionary(Of String, Object)
+        Dim respuesta As New Dictionary(Of String, Object)()
+        Dim alertaId As Integer = ToInt(ObtenerParametro(context, "alerta_id"), 0)
+        Dim resultado As String = ObtenerParametro(context, "resultado").Trim().ToUpperInvariant()
+        Dim comentario As String = ObtenerParametro(context, "comentario").Trim()
+        Dim usuario As String = ObtenerUsuario(context)
+
+        If alertaId <= 0 Then
+            respuesta("ok") = False
+            respuesta("mensaje") = "ID de alerta inválido."
+            Return respuesta
+        End If
+
+        If resultado <> "EN_ANALISIS" AndAlso resultado <> "JUSTIFICADA" AndAlso resultado <> "NO_JUSTIFICADA" Then
+            respuesta("ok") = False
+            respuesta("mensaje") = "Resultado de investigación inválido."
+            Return respuesta
+        End If
+
+        If String.IsNullOrWhiteSpace(comentario) Then
+            respuesta("ok") = False
+            respuesta("mensaje") = "El comentario de investigación es obligatorio."
+            Return respuesta
+        End If
+
+        Using cn As New SqlConnection(CadenaConexion())
+            cn.Open()
+            Using tr As SqlTransaction = cn.BeginTransaction()
+                Try
+                    Dim categoria As String = ""
+                    Dim origen As String = ""
+
+                    Using cmd As New SqlCommand(
+                        "SELECT TOP 1 c.descripcion AS categoria, a.origen_evento " &
+                        "FROM dbo.alertas_pld a " &
+                        "INNER JOIN dbo.catalogo_alerta_categoria c ON c.id=a.categoria_id " &
+                        "WHERE a.id=@id AND a.activo=1;", cn, tr)
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = alertaId
+                        Using rd As SqlDataReader = cmd.ExecuteReader()
+                            If Not rd.Read() Then
+                                respuesta("ok") = False
+                                respuesta("mensaje") = "No se encontró la alerta activa."
+                                rd.Close()
+                                tr.Rollback()
+                                Return respuesta
+                            End If
+                            categoria = If(rd.IsDBNull(rd.GetOrdinal("categoria")), "", Convert.ToString(rd("categoria")))
+                            origen = If(rd.IsDBNull(rd.GetOrdinal("origen_evento")), "", Convert.ToString(rd("origen_evento")))
+                        End Using
+                    End Using
+
+                    Dim investigacionId As Long
+                    Using cmd As New SqlCommand(
+                        "INSERT INTO dbo.alertas_pld_investigacion(alerta_id,resultado,comentario,categoria_alerta,origen_evento,usuario) " &
+                        "VALUES(@alerta,@resultado,@comentario,@categoria,@origen,@usuario); " &
+                        "SELECT CAST(SCOPE_IDENTITY() AS bigint);", cn, tr)
+                        cmd.Parameters.Add("@alerta", SqlDbType.Int).Value = alertaId
+                        cmd.Parameters.Add("@resultado", SqlDbType.VarChar, 30).Value = resultado
+                        cmd.Parameters.Add("@comentario", SqlDbType.NVarChar, -1).Value = comentario
+                        cmd.Parameters.Add("@categoria", SqlDbType.NVarChar, 150).Value = If(categoria = "", CType(DBNull.Value, Object), categoria)
+                        cmd.Parameters.Add("@origen", SqlDbType.NVarChar, 100).Value = If(origen = "", CType(DBNull.Value, Object), origen)
+                        cmd.Parameters.Add("@usuario", SqlDbType.NVarChar, 100).Value = usuario
+                        investigacionId = Convert.ToInt64(cmd.ExecuteScalar())
+                    End Using
+
+                    Dim estatusActual As Integer = ObtenerEstatusActual(cn, tr, alertaId)
+                    InsertarBitacora(
+                        cn, tr, alertaId,
+                        "INVESTIGACION_" & resultado,
+                        estatusActual, estatusActual,
+                        comentario,
+                        usuario
+                    )
+
+                    tr.Commit()
+                    respuesta("ok") = True
+                    respuesta("mensaje") = "Análisis registrado correctamente."
+                    respuesta("investigacion_id") = investigacionId
+                    respuesta("estatus_modificado") = False
+                Catch
+                    tr.Rollback()
+                    Throw
+                End Try
+            End Using
+        End Using
 
         Return respuesta
     End Function
