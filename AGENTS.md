@@ -582,6 +582,17 @@ Al terminar una tarea, el agente debe dejar un resumen breve con:
 6. **Validación**
 7. **Bitácora**
 8. **Pendientes o riesgos**
+9. **Estado actualizado de fases/pendientes** cuando el trabajo forme parte de un plan por fases.
+
+### Regla de cierre por fases
+
+Cuando Edgar autorice desarrollar una fase de un roadmap o plan:
+
+- cerrar la fase completamente dentro del alcance aprobado;
+- actualizar el archivo de `cambios_codex/` correspondiente;
+- actualizar README/SQL/estructura/bitácora cuando aplique;
+- subir los cambios a GitHub;
+- **reportar automáticamente al terminar la lista actualizada de fases completadas, siguiente fase y pendientes/bloqueos**, sin esperar que Edgar vuelva a solicitarla.
 
 No ocultar fallas de compilación, pruebas no ejecutadas o dependencias faltantes.
 
