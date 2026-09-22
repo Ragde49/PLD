@@ -243,25 +243,31 @@ BEGIN TRY
         (SELECT id FROM dbo.seguridad_paginas WHERE ruta = '/secure/solicitud_pf.aspx');
 
     IF @paginaRevId IS NOT NULL AND @handlerRevId IS NOT NULL
-       AND NOT EXISTS (
-            SELECT 1
+    BEGIN
+        DECLARE @relPaginaHandlerId INT =
+        (
+            SELECT TOP 1 id
             FROM dbo.seguridad_pagina_handler
             WHERE pagina_id = @paginaRevId
               AND handler_id = @handlerRevId
-       )
-    BEGIN
-        INSERT INTO dbo.seguridad_pagina_handler
-            (pagina_id, handler_id, activo, fecha_creacion)
-        VALUES
-            (@paginaRevId, @handlerRevId, 1, GETDATE());
-    END
-    ELSE IF @paginaRevId IS NOT NULL AND @handlerRevId IS NOT NULL
-    BEGIN
-        UPDATE dbo.seguridad_pagina_handler
-        SET activo = 1,
-            fecha_modificacion = GETDATE()
-        WHERE pagina_id = @paginaRevId
-          AND handler_id = @handlerRevId;
+            ORDER BY activo DESC, id
+        );
+
+        IF @relPaginaHandlerId IS NULL
+        BEGIN
+            INSERT INTO dbo.seguridad_pagina_handler
+                (pagina_id, handler_id, activo, fecha_creacion)
+            VALUES
+                (@paginaRevId, @handlerRevId, 1, GETDATE());
+        END
+        ELSE
+        BEGIN
+            UPDATE dbo.seguridad_pagina_handler
+            SET activo = CASE WHEN id = @relPaginaHandlerId THEN 1 ELSE 0 END,
+                fecha_modificacion = GETDATE()
+            WHERE pagina_id = @paginaRevId
+              AND handler_id = @handlerRevId;
+        END;
     END;
 
     -- Heredar acceso desde Consulta PF; no se crean permisos CRUD visibles.
