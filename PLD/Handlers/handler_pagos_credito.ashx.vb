@@ -423,6 +423,8 @@ Public Class handler_pagos_credito
         Dim usuario As String = ObtenerUsuario(context)
 
         Dim nuevoPagoId As Integer = 0
+        Dim saldoRevolventeDespues As Object = Nothing
+        Dim disponibleRevolventeDespues As Object = Nothing
 
         Using cn As New SqlConnection(CadenaConexion())
             cn.Open()
@@ -576,6 +578,8 @@ Public Class handler_pagos_credito
                         End If
 
                         saldoDespues = Money2(saldoAntes - montoCapital)
+                        saldoRevolventeDespues = saldoDespues
+                        disponibleRevolventeDespues = Money2(montoCreditoOriginal - saldoDespues)
                     Else
                         saldoDespues = ToDecimal(ObtenerParametro(context, "saldo_despues_pago"), saldoAntes - montoCapital)
                         If saldoDespues < 0D Then saldoDespues = 0D
@@ -731,6 +735,8 @@ Public Class handler_pagos_credito
         respuesta("ok") = True
         respuesta("mensaje") = "Pago aplicado correctamente."
         respuesta("pago_credito_id") = nuevoPagoId
+        respuesta("saldo_utilizado_despues") = saldoRevolventeDespues
+        respuesta("disponible_despues") = disponibleRevolventeDespues
         respuesta("alertas_ok") = alertaOk
         respuesta("alertas_mensaje") = alertaMensaje
         respuesta("alertas_detalle") = alertaDetalle
