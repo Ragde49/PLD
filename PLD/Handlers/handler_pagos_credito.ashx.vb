@@ -123,6 +123,11 @@ Public Class handler_pagos_credito
         Return defaultValue
     End Function
 
+    Private Function Money2(ByVal valor As Decimal) As Decimal
+        Return Math.Round(valor, 2, MidpointRounding.AwayFromZero)
+    End Function
+
+
     Private Function ToDateTimeNullable(ByVal valor As Object) As DateTime?
         If valor Is Nothing OrElse valor Is DBNull.Value Then Return Nothing
 
@@ -447,7 +452,7 @@ Public Class handler_pagos_credito
                     Dim monedaId As Integer = ToInt(ObtenerParametro(context, "moneda_id"), ToInt(solicitud("moneda_id"), 0))
                     Dim aplicacionPagoId As Integer = ToInt(ObtenerParametro(context, "aplicacion_pago_id"), 0)
 
-                    Dim montoPago As Decimal = ToDecimal(ObtenerParametro(context, "monto_pago"), 0D)
+                    Dim montoPago As Decimal = Money2(ToDecimal(ObtenerParametro(context, "monto_pago"), 0D))
                     Dim tipoCambio As Decimal = ToDecimal(ObtenerParametro(context, "tipo_cambio"), 1D)
 
                     If tipoPagoId <= 0 Then
@@ -507,18 +512,33 @@ Public Class handler_pagos_credito
                     Dim esRevolvente As Boolean = ToBool(solicitud("es_revolvente"), False)
                     Dim montoCreditoOriginal As Decimal = ToDecimal(ObtenerParametro(context, "monto_credito_original"), ToDecimal(solicitud("monto_solicitado"), 0D))
                     Dim saldoAntes As Decimal = ToDecimal(ObtenerParametro(context, "saldo_antes_pago"), montoCreditoOriginal)
-                    Dim montoCapital As Decimal = ToDecimal(ObtenerParametro(context, "monto_capital"), montoPago)
+                    Dim montoCapital As Decimal = Money2(ToDecimal(ObtenerParametro(context, "monto_capital"), montoPago))
                     Dim saldoDespues As Decimal = 0D
 
                     If esRevolvente Then
+                        Dim estatusSolicitud As String = Convert.ToString(solicitud("estatus"), CultureInfo.InvariantCulture).Trim().ToUpperInvariant()
+                        If estatusSolicitud <> "FINALIZADA" Then
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "La solicitud revolvente debe estar FINALIZADA antes de registrar pagos."
+                            tr.Rollback()
+                            Return respuesta
+                        End If
+
                         If solicitud.IsNull("monto_autorizado") Then
                             respuesta("ok") = False
                             respuesta("mensaje") = "La línea revolvente no tiene límite autorizado configurado."
                             tr.Rollback()
                             Return respuesta
                         End If
-                        montoCreditoOriginal = Convert.ToDecimal(solicitud("monto_autorizado"), CultureInfo.InvariantCulture)
-                        saldoAntes = ObtenerSaldoUtilizadoRevolvente(cn, tr, solicitudId)
+                        montoCreditoOriginal = Money2(Convert.ToDecimal(solicitud("monto_autorizado"), CultureInfo.InvariantCulture))
+                        saldoAntes = Money2(ObtenerSaldoUtilizadoRevolvente(cn, tr, solicitudId))
+
+                        If saldoAntes < 0D Then
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "La línea presenta capital amortizado mayor al capital dispuesto. Debe corregirse antes de registrar más pagos."
+                            tr.Rollback()
+                            Return respuesta
+                        End If
 
                         If montoCapital < 0D OrElse montoCapital > montoPago Then
                             respuesta("ok") = False
@@ -528,22 +548,52 @@ Public Class handler_pagos_credito
                         End If
                         If montoCapital > saldoAntes Then
                             respuesta("ok") = False
-                            respuesta("mensaje") = "El capital aplicado no puede exceder el capital utilizado de la línea."
+                            respuesta("mensaje") = "El capital aplicado no puede exceder el capital utilizado actual de la línea."
                             tr.Rollback()
                             Return respuesta
                         End If
-                        saldoDespues = saldoAntes - montoCapital
+
+                        Dim monedaCreditoId As Integer = ToInt(solicitud("moneda_id"), 0)
+                        If montoCapital > 0D AndAlso monedaCreditoId > 0 AndAlso monedaId <> monedaCreditoId Then
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "No se puede aplicar capital a una línea revolvente con una moneda distinta a la moneda del crédito sin una regla de conversión aprobada."
+                            tr.Rollback()
+                            Return respuesta
+                        End If
+
+                        Dim saldoEnFechaPago As Decimal = Money2(ObtenerSaldoUtilizadoRevolventeEnFecha(cn, tr, solicitudId, fechaPago))
+                        If saldoEnFechaPago < 0D Then
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "La secuencia histórica de movimientos ya presenta un saldo negativo en la fecha indicada."
+                            tr.Rollback()
+                            Return respuesta
+                        End If
+                        If montoCapital > saldoEnFechaPago Then
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "El capital aplicado excede el saldo utilizado que existía en la fecha del pago."
+                            tr.Rollback()
+                            Return respuesta
+                        End If
+
+                        saldoDespues = Money2(saldoAntes - montoCapital)
                     Else
                         saldoDespues = ToDecimal(ObtenerParametro(context, "saldo_despues_pago"), saldoAntes - montoCapital)
                         If saldoDespues < 0D Then saldoDespues = 0D
                     End If
 
-                    Dim montoInteres As Decimal = ToDecimal(ObtenerParametro(context, "monto_interes"), 0D)
-                    Dim montoIva As Decimal = ToDecimal(ObtenerParametro(context, "monto_iva"), 0D)
-                    Dim montoMoratorio As Decimal = ToDecimal(ObtenerParametro(context, "monto_moratorio"), 0D)
-                    Dim montoComisiones As Decimal = ToDecimal(ObtenerParametro(context, "monto_comisiones"), 0D)
-                    Dim montoOtros As Decimal = ToDecimal(ObtenerParametro(context, "monto_otros"), 0D)
-                    Dim pagoFijoContractual As Decimal = ToDecimal(ObtenerParametro(context, "pago_fijo_contractual"), 0D)
+                    Dim montoInteres As Decimal = Money2(ToDecimal(ObtenerParametro(context, "monto_interes"), 0D))
+                    Dim montoIva As Decimal = Money2(ToDecimal(ObtenerParametro(context, "monto_iva"), 0D))
+                    Dim montoMoratorio As Decimal = Money2(ToDecimal(ObtenerParametro(context, "monto_moratorio"), 0D))
+                    Dim montoComisiones As Decimal = Money2(ToDecimal(ObtenerParametro(context, "monto_comisiones"), 0D))
+                    Dim montoOtros As Decimal = Money2(ToDecimal(ObtenerParametro(context, "monto_otros"), 0D))
+                    Dim pagoFijoContractual As Decimal = Money2(ToDecimal(ObtenerParametro(context, "pago_fijo_contractual"), 0D))
+
+                    If montoInteres < 0D OrElse montoIva < 0D OrElse montoMoratorio < 0D OrElse montoComisiones < 0D OrElse montoOtros < 0D Then
+                        respuesta("ok") = False
+                        respuesta("mensaje") = "Los componentes del pago no pueden ser negativos."
+                        tr.Rollback()
+                        Return respuesta
+                    End If
 
                     Dim montoEquivalenteMxn As Decimal = ToDecimal(ObtenerParametro(context, "monto_equivalente_mxn"), montoPago * tipoCambio)
                     Dim montoEquivalenteUsd As Decimal = ToDecimal(ObtenerParametro(context, "monto_equivalente_usd"), 0D)
@@ -564,7 +614,7 @@ Public Class handler_pagos_credito
                         defaultEsPagoExcedente = True
                     End If
 
-                    If saldoDespues <= 0D Then
+                    If Not esRevolvente AndAlso saldoDespues <= 0D Then
                         defaultEsLiquidacion = True
                     End If
 
@@ -572,6 +622,7 @@ Public Class handler_pagos_credito
                     Dim esMonedaExtranjera As Boolean = ToBool(ObtenerParametro(context, "es_moneda_extranjera"), defaultEsMonedaExtranjera)
                     Dim esPagoExcedente As Boolean = ToBool(ObtenerParametro(context, "es_pago_excedente"), defaultEsPagoExcedente)
                     Dim esLiquidacion As Boolean = ToBool(ObtenerParametro(context, "es_liquidacion"), defaultEsLiquidacion)
+                    If esRevolvente Then esLiquidacion = False
 
                     Dim fechaCreacionSolicitud As DateTime = Convert.ToDateTime(solicitud("fecha_creacion"))
                     Dim diasDesdeOtorgamiento As Integer = DateDiff(DateInterval.Day, fechaCreacionSolicitud, fechaPago)
@@ -585,7 +636,9 @@ Public Class handler_pagos_credito
                     End If
 
                     Dim porcentajePagado As Decimal = ToDecimal(ObtenerParametro(context, "porcentaje_pagado_credito"), 0D)
-                    If porcentajePagado <= 0D AndAlso montoCreditoOriginal > 0D Then
+                    If esRevolvente Then
+                        porcentajePagado = 0D
+                    ElseIf porcentajePagado <= 0D AndAlso montoCreditoOriginal > 0D Then
                         porcentajePagado = (montoPago / montoCreditoOriginal) * 100D
                     End If
 
@@ -692,6 +745,9 @@ Public Class handler_pagos_credito
         If pagoId <= 0 Then
             respuesta("ok") = False : respuesta("mensaje") = "ID de pago inválido." : Return respuesta
         End If
+        If String.IsNullOrWhiteSpace(motivo) Then
+            respuesta("ok") = False : respuesta("mensaje") = "El motivo de cancelación es obligatorio." : Return respuesta
+        End If
 
         Using cn As New SqlConnection(CadenaConexion())
             cn.Open()
@@ -712,9 +768,12 @@ Public Class handler_pagos_credito
                         If solicitud.IsNull("monto_autorizado") Then
                             respuesta("ok")=False : respuesta("mensaje")="No se puede cancelar: la línea revolvente no tiene límite autorizado." : tr.Rollback() : Return respuesta
                         End If
-                        Dim saldoActual As Decimal=ObtenerSaldoUtilizadoRevolvente(cn,tr,solicitudId)
-                        Dim saldoPosterior As Decimal=saldoActual+ToDecimal(pago("monto_capital"),0D)
-                        Dim limiteLinea As Decimal=Convert.ToDecimal(solicitud("monto_autorizado"),CultureInfo.InvariantCulture)
+                        Dim saldoActual As Decimal=Money2(ObtenerSaldoUtilizadoRevolvente(cn,tr,solicitudId))
+                        If saldoActual < 0D Then
+                            respuesta("ok")=False : respuesta("mensaje")="No se puede cancelar mientras la línea tenga saldo utilizado negativo." : tr.Rollback() : Return respuesta
+                        End If
+                        Dim saldoPosterior As Decimal=Money2(saldoActual+ToDecimal(pago("monto_capital"),0D))
+                        Dim limiteLinea As Decimal=Money2(Convert.ToDecimal(solicitud("monto_autorizado"),CultureInfo.InvariantCulture))
                         If saldoPosterior>limiteLinea Then
                             respuesta("ok")=False : respuesta("mensaje")="No se puede cancelar este pago porque disposiciones posteriores utilizaron el disponible recuperado." : tr.Rollback() : Return respuesta
                         End If
@@ -726,8 +785,18 @@ Public Class handler_pagos_credito
                         cmd.Parameters.Add("@usuario",SqlDbType.NVarChar,100).Value=usuario
                         cmd.ExecuteNonQuery()
                     End Using
+                    Dim saldoResultado As Object = Nothing
+                    Dim disponibleResultado As Object = Nothing
+                    If solicitud IsNot Nothing AndAlso ToBool(solicitud("es_revolvente"),False) Then
+                        Dim saldoPost As Decimal = Money2(ObtenerSaldoUtilizadoRevolvente(cn,tr,solicitudId))
+                        saldoResultado = saldoPost
+                        disponibleResultado = Money2(Convert.ToDecimal(solicitud("monto_autorizado"),CultureInfo.InvariantCulture) - saldoPost)
+                    End If
+
                     tr.Commit()
                     respuesta("ok")=True : respuesta("mensaje")="Pago cancelado correctamente."
+                    respuesta("saldo_utilizado_despues") = saldoResultado
+                    respuesta("disponible_despues") = disponibleResultado
                 Catch
                     tr.Rollback() : Throw
                 End Try
@@ -756,6 +825,25 @@ Public Class handler_pagos_credito
             amortizado=Convert.ToDecimal(cmd.ExecuteScalar(),CultureInfo.InvariantCulture)
         End Using
         Return dispuesto-amortizado
+    End Function
+
+    Private Function ObtenerSaldoUtilizadoRevolventeEnFecha(ByVal cn As SqlConnection, ByVal tr As SqlTransaction, ByVal solicitudId As Integer, ByVal fechaCorte As DateTime) As Decimal
+        Dim dispuesto As Decimal = 0D
+        Dim amortizado As Decimal = 0D
+
+        Using cmd As New SqlCommand("SELECT ISNULL(SUM(monto),0) FROM dbo.credito_disposiciones WITH (UPDLOCK,HOLDLOCK) WHERE solicitud_credito_id=@id AND activo=1 AND estatus=N'APLICADA' AND fecha_disposicion<=@fecha;", cn, tr)
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = solicitudId
+            cmd.Parameters.Add("@fecha", SqlDbType.DateTime2).Value = fechaCorte
+            dispuesto = Convert.ToDecimal(cmd.ExecuteScalar(), CultureInfo.InvariantCulture)
+        End Using
+
+        Using cmd As New SqlCommand("SELECT ISNULL(SUM(ISNULL(monto_capital,0)),0) FROM dbo.pagos_credito WITH (UPDLOCK,HOLDLOCK) WHERE solicitud_credito_id=@id AND activo=1 AND estatus=N'APLICADO' AND fecha_pago<=@fecha;", cn, tr)
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = solicitudId
+            cmd.Parameters.Add("@fecha", SqlDbType.DateTime2).Value = fechaCorte
+            amortizado = Convert.ToDecimal(cmd.ExecuteScalar(), CultureInfo.InvariantCulture)
+        End Using
+
+        Return Money2(dispuesto - amortizado)
     End Function
 
     Private Function ObtenerDescripcionTipoPago(ByVal cn As SqlConnection, ByVal tr As SqlTransaction, ByVal tipoPagoId As Integer) As String
