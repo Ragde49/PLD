@@ -30,6 +30,7 @@ Acceso principal desde código:
 1. `20260513_seguridad.sql`
 2. `20260513_seguridad_pagina_handler.sql`
 3. `20260922_001_credito_revolvente.sql`
+4. `20260922_002_perfil_transaccional_cliente.sql`
 
 Estos scripts documentan principalmente la estructura de seguridad y no representan por sí solos la creación completa de la base de datos PLD.
 
@@ -59,6 +60,7 @@ Los siguientes objetos aparecen utilizados directamente por handlers o módulos 
 - `pagos_credito`
 - `credito_disposiciones`
 - `vw_credito_revolvente_saldo`
+- `vw_cliente_perfil_transaccional_mensual`
 
 ### Producto financiero
 
@@ -146,3 +148,24 @@ Script: `20260922_001_credito_revolvente.sql`
 - Índices por solicitud/fecha y solicitud/estatus.
 - Nueva vista `vw_credito_revolvente_saldo` para capital dispuesto, capital amortizado, saldo utilizado y disponible.
 - Saldo utilizado y disponible son valores derivados, no fuentes de verdad almacenadas.
+
+
+### 2026-09-22 — Perfil transaccional del cliente
+
+Script: `20260922_002_perfil_transaccional_cliente.sql`
+
+Cambios en `cliente_persona_fisica`:
+
+- `perfil_pagos_mensuales_esperados INT NULL`.
+- `perfil_monto_mensual_esperado DECIMAL(18,2) NULL`.
+- `perfil_transaccional_modificado_por NVARCHAR(100) NULL`.
+- `perfil_transaccional_fecha_modificacion DATETIME2(0) NULL`.
+- Constraints para impedir valores negativos en cantidad/monto esperados.
+
+Nueva vista `vw_cliente_perfil_transaccional_mensual`:
+
+- agrega pagos aplicados por cliente, año y mes;
+- expone cantidad y monto esperados;
+- expone cantidad y monto reales;
+- calcula desviaciones absolutas y porcentuales;
+- no contiene umbrales ni clasificación PLD.
