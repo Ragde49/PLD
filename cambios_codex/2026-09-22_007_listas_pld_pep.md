@@ -59,3 +59,13 @@ Pendiente únicamente por definición del cliente:
 - proveedor externo.
 
 No se implementó ninguna de esas reglas por inferencia.
+
+
+### Separación de privilegios
+
+Se separaron los endpoints para respetar el modelo default-deny:
+
+- `handler_listas_pld.ashx`: administración de catálogo/cargas/activación; ligado únicamente a la página administrativa.
+- `handler_consulta_listas_pld.ashx`: búsqueda exacta auditada; ligado a la página de listas y a Captura de Solicitud.
+
+Esto evita que un usuario con permiso para capturar clientes pueda invocar operaciones administrativas de carga/activación.
