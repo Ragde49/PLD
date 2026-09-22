@@ -111,7 +111,7 @@ PLD/
 - `Handlers/`: endpoints HTTP utilizados por las pantallas.
 - `Security/`: autenticación, autorización, menú, hashing y sesión.
 - `Services/`: servicios compartidos; actualmente incluye correo PLD.
-- `SQL/`: scripts incrementales de seguridad.
+- `SQL/`: scripts incrementales de base de datos y `ESTRUCTURA_BASE_DATOS.md`, que debe mantenerse sincronizado con cualquier cambio de esquema.
 - `Docs md/`: documentación funcional/técnica específica.
 - `assets/`: CSS, JavaScript, iconos y recursos gráficos.
 
@@ -340,6 +340,8 @@ El repositorio **no contiene un script completo de creación de toda la base ope
 
 1. `20260513_seguridad.sql`
 2. `20260513_seguridad_pagina_handler.sql`
+
+La referencia canónica de la estructura de base de datos conocida está en `PLD/SQL/ESTRUCTURA_BASE_DATOS.md`. Todo cambio futuro de esquema debe actualizar ese documento y agregar su script incremental.
 
 Por lo tanto, para ejecutar el sistema se requiere una base existente con los objetos de negocio utilizados por crédito, PLD, catálogos, alertas, pagos y scoring.
 
