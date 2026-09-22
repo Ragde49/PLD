@@ -162,11 +162,13 @@
     <Content Include="Secure\config_alertas_destinatarios.aspx" />
     <Content Include="Secure\config_puntaje_categoria.aspx" />
     <Content Include="Secure\pagos_credito.aspx" />
+    <Content Include="Secure\credito_revolvente.aspx" />
     <Content Include="Secure\presolicitud_form.aspx" />
     <Content Include="Secure\seguridad.aspx" />
     <Content Include="Secure\solicitud_pf.aspx" />
     <Content Include="SQL\20260513_seguridad.sql" />
     <Content Include="SQL\20260513_seguridad_pagina_handler.sql" />
+    <Content Include="SQL\20260922_001_credito_revolvente.sql" />
     <Content Include="Web.config" />
     <Content Include="Handlers\solicitudPFHandler.ashx" />
     <Content Include="Handlers\handler_fondeador.ashx" />
@@ -228,6 +230,7 @@
     <Content Include="Handlers\producto_financiero_periodos_handler.ashx" />
     <Content Include="Handlers\handler_alertas_pld.ashx" />
     <Content Include="Handlers\handler_pagos_credito.ashx" />
+    <Content Include="Handlers\handler_credito_revolvente.ashx" />
     <Content Include="Handlers\handler_config_alertas_destinatarios.ashx" />
     <Content Include="Handlers\handler_prueba_correo_pld.ashx" />
     <None Include="Web.Debug.config">
@@ -353,6 +356,9 @@
     </Compile>
     <Compile Include="Handlers\handler_pagos_credito.ashx.vb">
       <DependentUpon>handler_pagos_credito.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_credito_revolvente.ashx.vb">
+      <DependentUpon>handler_credito_revolvente.ashx</DependentUpon>
     </Compile>
     <Compile Include="Handlers\handler_paises.ashx.vb">
       <DependentUpon>handler_paises.ashx</DependentUpon>
@@ -725,6 +731,13 @@
     </Compile>
     <Compile Include="Secure\solicitud_pf.aspx.designer.vb">
       <DependentUpon>solicitud_pf.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\credito_revolvente.aspx.vb">
+      <DependentUpon>credito_revolvente.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Secure\credito_revolvente.aspx.designer.vb">
+      <DependentUpon>credito_revolvente.aspx</DependentUpon>
     </Compile>
     <Compile Include="Secure\solicitud_pf.aspx.vb">
       <DependentUpon>solicitud_pf.aspx</DependentUpon>
