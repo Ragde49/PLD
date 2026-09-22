@@ -38,7 +38,8 @@ Los módulos principales identificados en el código son:
 | Clientes PF | Alta, actualización, búsqueda y consulta de persona física |
 | Contacto | Teléfonos, correos y domicilios ligados a la solicitud |
 | Evaluación PLD | Precarga de factores, cálculo, guardado y detalle de resultado |
-| Alertas PLD | Reglas, bandeja, asignación, bitácora, generación manual y automática |
+| Alertas PLD | Reglas, bandeja, asignación, bitácora, generación manual/automática e investigación trazable |
+| Listas PLD / PEP | Versionado manual de listas, carga XLSX/CSV, versión vigente, consulta exacta y auditoría |
 | Pagos de crédito | Consulta, aplicación, referencias y cancelación; saldo revolvente derivado cuando aplica |
 | Crédito revolvente | Configuración de línea, disposiciones, saldo utilizado, disponible e historial operativo |
 | Productos financieros | Catálogo, detalle, periodos y parámetros del producto |
@@ -158,7 +159,8 @@ Los handlers reciben una acción por request y devuelven datos/JSON según el ca
 | `solicitud_credito_handler.ashx` | `crear`, `obtener`, `actualizar_operacion`, `actualizar_relaciones`, `listar`, `finalizar`, `amortizacion_condusef`, `periodos_producto`, `ping` |
 | `clientes_handler.ashx` | `crear`, `actualizar`, `buscar`, `obtener`, `ping` |
 | `contacto_solicitud_handler.ashx` | crear/obtener contacto; altas y actualización de teléfonos, correos y domicilios; selección de principal y activación/desactivación |
-| `handler_alertas_pld.ashx` | catálogos de reglas/motivos/categorías, bandeja, obtener, bitácora, generación manual/automática, evaluación de pagos y perfil transaccional, cambio de estatus y asignación |
+| `handler_alertas_pld.ashx` | catálogos de reglas/motivos/categorías, bandeja, obtener, bitácora, generación manual/automática, evaluación de pagos/perfil transaccional, investigación, cambio de estatus y asignación |
+| `handler_listas_pld.ashx` | `catalogos`, `cargas`, `importar`, `activar`, `buscar` |
 | `handler_pagos_credito.ashx` | `consultar`, `obtener`, `catalogos`, `buscar_referencias`, `guardar_aplicar`, `cancelar` |
 | `handler_credito_revolvente.ashx` | `resumen`, `configurar_linea`, `listar_disposiciones`, `crear_disposicion`, `reversar_disposicion`, `historial` |
 | `producto_financiero_handler.ashx` | `list`, `get`, `create`, `update`, `delete` y administración de periodos |
@@ -223,6 +225,10 @@ El backend implementa:
 - Generación desde pagos y agregados de pago.
 - Cambio de estatus.
 - Asignación.
+- Investigación trazable con resultados `EN_ANALISIS`, `JUSTIFICADA` y `NO_JUSTIFICADA`.
+- Comentarios de Cumplimiento e historial independiente de investigación.
+
+Registrar un resultado de investigación no cambia automáticamente el estatus operativo de la alerta; ambas decisiones permanecen separadas hasta que exista una regla institucional confirmada.
 
 Objetos relevantes:
 
@@ -234,6 +240,20 @@ Objetos relevantes:
 - vistas `vw_pagos_credito_pld*`
 
 Una alerta debe tratarse como una condición de revisión; no equivale por sí sola a una determinación de lavado de dinero ni a un rechazo crediticio.
+
+### Listas PLD / PEP
+
+El módulo `Secure/listas_pld.aspx` permite administrar listas manuales PLD/PEP:
+
+- carga `.xlsx` y `.csv`;
+- histórico de versiones;
+- activación explícita de una versión vigente por lista;
+- SHA-256 del archivo para evitar cargas duplicadas;
+- consulta exacta normalizada por nombre, RFC o CURP;
+- auditoría de consultas y coincidencias;
+- consulta desde la identidad del cliente.
+
+Las listas iniciales confirmadas son `BLOQUEADAS` y `PEP`. Una coincidencia exacta es una señal para revisión, no una confirmación de identidad ni un bloqueo automático. Similitud/fonética, porcentajes de coincidencia, tratamiento de homónimos y acciones de bloqueo requieren definición institucional.
 
 ---
 
@@ -401,6 +421,12 @@ Entre los objetos centrales observados se encuentran:
 - `solicitud_pld_detalle`
 - `alertas_pld`
 - `alertas_pld_bitacora`
+- `alertas_pld_investigacion`
+- `catalogo_listas_pld`
+- `listas_pld_cargas`
+- `listas_pld_personas`
+- `listas_pld_consultas`
+- `listas_pld_consulta_resultados`
 - `pagos_credito`
 - vistas de apoyo `vw_pld_*` y `vw_pagos_credito_pld*`
 
@@ -413,13 +439,16 @@ Artefactos de validación:
 - `PLD/SQL/20260922_003_preflight_rc_revolvente.sql`
 - `PLD/Docs md/RC_QA_CREDITO_REVOLVENTE.md`
 
-Orden SQL para un ambiente existente:
+Orden SQL del alcance actualmente desarrollado para un ambiente existente:
 
 1. `20260922_001_credito_revolvente.sql`
 2. `20260922_002_perfil_transaccional_cliente.sql`
-3. `20260922_003_preflight_rc_revolvente.sql`
+3. `20260922_004_listas_pld.sql`
+4. `20260922_005_alertas_investigacion.sql`
+5. `20260922_003_preflight_rc_revolvente.sql` — validación específica de revolvente.
+6. `20260922_006_preflight_integral_pld.sql` — validación adicional de listas/investigación.
 
-El preflight no sustituye la compilación ni las pruebas funcionales. La liberación a QA requiere además build Debug/Release, ejecución de migraciones en base de pruebas y smoke/regresión/seguridad con usuarios reales.
+Los preflight no sustituyen la compilación ni las pruebas funcionales. La liberación a QA requiere además build Debug/Release, ejecución de migraciones en base de pruebas y smoke/regresión/seguridad con usuarios reales.
 
 ---
 
