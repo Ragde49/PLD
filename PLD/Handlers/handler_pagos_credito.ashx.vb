@@ -703,6 +703,16 @@ Public Class handler_pagos_credito
                         usuario
                     )
 
+                    If esRevolvente Then
+                        Dim extremos = ObtenerExtremosHistoricosRevolvente(cn, tr, solicitudId)
+                        If extremos("minimo") < 0D OrElse extremos("maximo") > montoCreditoOriginal Then
+                            tr.Rollback()
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "El pago no puede aplicarse porque rompería la integridad histórica de la línea revolvente."
+                            Return respuesta
+                        End If
+                    End If
+
                     tr.Commit()
 
                 Catch ex As Exception
@@ -793,6 +803,18 @@ Public Class handler_pagos_credito
                         cmd.Parameters.Add("@usuario",SqlDbType.NVarChar,100).Value=usuario
                         cmd.ExecuteNonQuery()
                     End Using
+
+                    If solicitud IsNot Nothing AndAlso ToBool(solicitud("es_revolvente"),False) Then
+                        Dim limiteHistorico As Decimal = Money2(Convert.ToDecimal(solicitud("monto_autorizado"),CultureInfo.InvariantCulture))
+                        Dim extremos = ObtenerExtremosHistoricosRevolvente(cn, tr, solicitudId)
+                        If extremos("minimo") < 0D OrElse extremos("maximo") > limiteHistorico Then
+                            tr.Rollback()
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "No se puede cancelar el pago porque la línea quedaría históricamente fuera de sus límites."
+                            Return respuesta
+                        End If
+                    End If
+
                     Dim saldoResultado As Object = Nothing
                     Dim disponibleResultado As Object = Nothing
                     If solicitud IsNot Nothing AndAlso ToBool(solicitud("es_revolvente"),False) Then
@@ -852,6 +874,41 @@ Public Class handler_pagos_credito
         End Using
 
         Return Money2(dispuesto - amortizado)
+    End Function
+
+    Private Function ObtenerExtremosHistoricosRevolvente(ByVal cn As SqlConnection, ByVal tr As SqlTransaction, ByVal solicitudId As Integer) As Dictionary(Of String, Decimal)
+        Dim resultado As New Dictionary(Of String, Decimal) From {
+            {"minimo", 0D},
+            {"maximo", 0D}
+        }
+
+        Dim sql As String =
+            ";WITH mov AS (" &
+            " SELECT cd.fecha_disposicion AS fecha, 0 AS orden_tipo, cd.id AS movimiento_id, CAST(cd.monto AS decimal(18,2)) AS delta " &
+            " FROM dbo.credito_disposiciones cd WITH (UPDLOCK,HOLDLOCK) " &
+            " WHERE cd.solicitud_credito_id=@id AND cd.activo=1 AND cd.estatus=N'APLICADA' " &
+            " UNION ALL " &
+            " SELECT pc.fecha_pago AS fecha, 1 AS orden_tipo, pc.id AS movimiento_id, CAST(-ISNULL(pc.monto_capital,0) AS decimal(18,2)) AS delta " &
+            " FROM dbo.pagos_credito pc WITH (UPDLOCK,HOLDLOCK) " &
+            " WHERE pc.solicitud_credito_id=@id AND pc.activo=1 AND pc.estatus=N'APLICADO' " &
+            "), saldos AS (" &
+            " SELECT SUM(delta) OVER (ORDER BY fecha, orden_tipo, movimiento_id ROWS UNBOUNDED PRECEDING) AS saldo FROM mov" &
+            ") " &
+            "SELECT ISNULL(MIN(saldo),0) AS minimo, ISNULL(MAX(saldo),0) AS maximo FROM saldos;"
+
+        Dim dt As DataTable = EjecutarTablaTransaccion(
+            cn, tr, sql,
+            New List(Of SqlParameter) From {
+                New SqlParameter("@id", SqlDbType.Int) With {.Value = solicitudId}
+            }
+        )
+
+        If dt.Rows.Count > 0 Then
+            resultado("minimo") = Money2(Convert.ToDecimal(dt.Rows(0)("minimo"), CultureInfo.InvariantCulture))
+            resultado("maximo") = Money2(Convert.ToDecimal(dt.Rows(0)("maximo"), CultureInfo.InvariantCulture))
+        End If
+
+        Return resultado
     End Function
 
     Private Function ObtenerDescripcionTipoPago(ByVal cn As SqlConnection, ByVal tr As SqlTransaction, ByVal tipoPagoId As Integer) As String
