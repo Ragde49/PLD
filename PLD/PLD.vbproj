@@ -170,6 +170,8 @@
     <Content Include="SQL\20260513_seguridad_pagina_handler.sql" />
     <Content Include="SQL\20260922_001_credito_revolvente.sql" />
     <Content Include="SQL\20260922_002_perfil_transaccional_cliente.sql" />
+    <Content Include="SQL\20260922_003_preflight_rc_revolvente.sql" />
+    <Content Include="Docs md\RC_QA_CREDITO_REVOLVENTE.md" />
     <Content Include="Web.config" />
     <Content Include="Handlers\solicitudPFHandler.ashx" />
     <Content Include="Handlers\handler_fondeador.ashx" />
