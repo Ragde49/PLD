@@ -55,9 +55,21 @@ Public Class solicitud_credito_handler : Implements IHttpHandler
             Dim d As New DetalleProductoAmortData()
 
             Dim sql As String = "
-SELECT TOP 1 id, producto_financiero_id, producto_financiero_periodo_id, monto_solicitado, plazo, tasa_entrada, fecha_creacion
-FROM dbo.solicitud_credito WITH (NOLOCK)
-WHERE id = @id;"
+SELECT TOP 1
+    sc.id,
+    sc.producto_financiero_id,
+    sc.producto_financiero_periodo_id,
+    sc.monto_solicitado,
+    sc.plazo,
+    sc.tasa_entrada,
+    sc.fecha_creacion,
+    ISNULL(cc.es_revolvente,0) AS es_revolvente
+FROM dbo.solicitud_credito sc WITH (NOLOCK)
+LEFT JOIN dbo.catalogo_producto_financiero pf WITH (NOLOCK)
+    ON pf.id = sc.producto_financiero_id
+LEFT JOIN dbo.catalogo_creditos cc WITH (NOLOCK)
+    ON cc.id = pf.tipo_credito_id
+WHERE sc.id = @id;"
             Using cmd As New SqlCommand(sql, con)
                 cmd.Parameters.Add("@id", SqlDbType.Int).Value = sid.Value
                 Using rd = cmd.ExecuteReader()
@@ -71,6 +83,7 @@ WHERE id = @id;"
                     s.MontoSolicitado = ToDecObj(rd("monto_solicitado"))
                     s.Plazo = If(rd.IsDBNull(rd.GetOrdinal("plazo")), 0, Convert.ToInt32(rd("plazo")))
                     s.TasaEntradaPct = ToDecObj(rd("tasa_entrada"))
+                    s.EsRevolvente = If(rd.IsDBNull(rd.GetOrdinal("es_revolvente")), False, Convert.ToBoolean(rd("es_revolvente")))
                     If Not rd.IsDBNull(rd.GetOrdinal("fecha_creacion")) Then
                         s.FechaCreacion = Convert.ToDateTime(rd("fecha_creacion"), CultureInfo.InvariantCulture)
                     End If
@@ -79,6 +92,10 @@ WHERE id = @id;"
 
             If s.ProductoFinancieroId <= 0 Then
                 WriteError(ctx, "La solicitud no tiene producto_financiero_id.")
+                Return
+            End If
+            If s.EsRevolvente Then
+                WriteErrorWithStatus(ctx, 409, "La tabla de amortización fija CONDUSEF no aplica a créditos revolventes.")
                 Return
             End If
             If s.ProductoFinancieroPeriodoId <= 0 Then
@@ -668,9 +685,16 @@ ORDER BY id DESC;"
             con.Open()
 
             Dim sqlSol As String = "
-            SELECT TOP 1 *
-            FROM dbo.solicitud_credito
-            WHERE id = @id;
+            SELECT TOP 1
+                sc.*,
+                ISNULL(cc.es_revolvente,0) AS es_revolvente,
+                cc.nombre_credito AS tipo_credito
+            FROM dbo.solicitud_credito sc
+            LEFT JOIN dbo.catalogo_producto_financiero pf
+                ON pf.id = sc.producto_financiero_id
+            LEFT JOIN dbo.catalogo_creditos cc
+                ON cc.id = pf.tipo_credito_id
+            WHERE sc.id = @id;
             "
 
             Dim solRow As New Dictionary(Of String, Object)
@@ -1169,6 +1193,7 @@ ORDER BY id DESC;"
         Public Property MontoSolicitado As Decimal
         Public Property Plazo As Integer
         Public Property TasaEntradaPct As Decimal
+        Public Property EsRevolvente As Boolean
         Public Property FechaCreacion As DateTime?
     End Class
 
