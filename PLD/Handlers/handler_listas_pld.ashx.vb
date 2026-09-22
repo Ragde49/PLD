@@ -37,8 +37,6 @@ Public Class handler_listas_pld
                     respuesta = Importar(context)
                 Case "activar"
                     respuesta = Activar(context)
-                Case "buscar"
-                    respuesta = Buscar(context)
                 Case Else
                     respuesta("ok") = False
                     respuesta("mensaje") = "Acción no válida."
