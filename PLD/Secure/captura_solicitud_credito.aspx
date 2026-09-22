@@ -241,6 +241,25 @@
                             <input type="text" id="cli_origen_otros_ingresos" class="form-control" maxlength="200">
                         </div>
 
+                        <div class="col-12 mt-2">
+                            <div class="border rounded p-3 bg-light">
+                                <div class="fw-semibold mb-2">Perfil transaccional esperado</div>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Pagos esperados por mes</label>
+                                        <input type="number" id="cli_perfil_pagos_mensuales" class="form-control" min="0" step="1" placeholder="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Monto mensual esperado</label>
+                                        <input type="number" id="cli_perfil_monto_mensual" class="form-control" min="0" step="0.01" placeholder="0.00">
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <div class="form-text mb-2">Estos valores representan el comportamiento declarado/esperado del cliente y se comparan contra pagos reales para PLD.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- PEP y consentimiento -->
                         <div class="col-md-3 form-check mt-4">
                             <input type="checkbox" class="form-check-input" id="cli_pep">
@@ -1405,6 +1424,7 @@
         const idsTxt = [
             'cli_id', 'cli_rfc', 'cli_curp', 'cli_primer_nombre', 'cli_segundo_nombre', 'cli_ap_paterno', 'cli_ap_materno',
             'cli_fecha_nac', 'cli_puesto', 'cli_empresa', 'cli_ingreso_mensual', 'cli_otros_ingresos', 'cli_origen_otros_ingresos',
+            'cli_perfil_pagos_mensuales', 'cli_perfil_monto_mensual',
             'cli_ident_numero', 'cli_ident_vigencia', 'cli_estatus'
         ];
         idsTxt.forEach(i => {
@@ -1517,6 +1537,8 @@
             ingreso_mensual: num(document.getElementById('cli_ingreso_mensual').value, 0),
             otros_ingresos: num(document.getElementById('cli_otros_ingresos').value, 0),
             origen_otros_ingresos: (document.getElementById('cli_origen_otros_ingresos').value || '').trim() || null,
+            perfil_pagos_mensuales_esperados: document.getElementById('cli_perfil_pagos_mensuales').value === '' ? null : int(document.getElementById('cli_perfil_pagos_mensuales').value, 0),
+            perfil_monto_mensual_esperado: document.getElementById('cli_perfil_monto_mensual').value === '' ? null : num(document.getElementById('cli_perfil_monto_mensual').value, 0),
 
             pep: !!document.getElementById('cli_pep').checked,
             acepta_avisos: !!document.getElementById('cli_acepta_avisos').checked,
@@ -1531,6 +1553,12 @@
 
         if (!p.primer_nombre || !p.ap_paterno || !p.rfc) {
             return swal.fire('Identidad', 'RFC, Primer nombre y Apellido paterno son obligatorios.', 'warning');
+        }
+        if (p.perfil_pagos_mensuales_esperados !== null && p.perfil_pagos_mensuales_esperados < 0) {
+            return swal.fire('Perfil transaccional', 'Los pagos esperados por mes no pueden ser negativos.', 'warning');
+        }
+        if (p.perfil_monto_mensual_esperado !== null && p.perfil_monto_mensual_esperado < 0) {
+            return swal.fire('Perfil transaccional', 'El monto mensual esperado no puede ser negativo.', 'warning');
         }
 
         try {
@@ -1671,6 +1699,8 @@
         document.getElementById('cli_ingreso_mensual').value = d.ingreso_mensual ?? '';
         document.getElementById('cli_otros_ingresos').value = d.otros_ingresos ?? '';
         document.getElementById('cli_origen_otros_ingresos').value = d.origen_otros_ingresos || '';
+        document.getElementById('cli_perfil_pagos_mensuales').value = d.perfil_pagos_mensuales_esperados ?? '';
+        document.getElementById('cli_perfil_monto_mensual').value = d.perfil_monto_mensual_esperado ?? '';
 
         // Empresa / puesto
         document.getElementById('cli_empresa').value = d.empresa || '';
