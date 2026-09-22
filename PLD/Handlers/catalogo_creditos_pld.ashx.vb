@@ -104,6 +104,7 @@ Public Class catalogo_creditos_pld
 SELECT
     c.id                                   AS id,
     c.nombre_credito                       AS descripcion,
+    ISNULL(c.es_revolvente,0)                AS es_revolvente,
     p.impacto                              AS impacto,
     p.probabilidad                         AS probabilidad,
     p.nivel_riesgo_pld                     AS nivel_riesgo_pld,
@@ -125,6 +126,7 @@ ORDER BY c.id;"
                         Dim r As New Dictionary(Of String, Object) From {
                             {"id", rd("id")},
                             {"descripcion", rd("descripcion")},
+                            {"es_revolvente", If(IsDBNull(rd("es_revolvente")), 0, rd("es_revolvente"))},
                             {"impacto", If(IsDBNull(rd("impacto")), Nothing, rd("impacto"))},
                             {"probabilidad", If(IsDBNull(rd("probabilidad")), Nothing, rd("probabilidad"))},
                             {"nivel_riesgo_pld", If(IsDBNull(rd("nivel_riesgo_pld")), Nothing, rd("nivel_riesgo_pld"))},
@@ -154,6 +156,7 @@ ORDER BY c.id;"
 SELECT TOP 1
     c.id                                   AS id,
     c.nombre_credito                       AS descripcion,
+    ISNULL(c.es_revolvente,0)                AS es_revolvente,
     ISNULL(p.impacto,0)                    AS impacto,
     ISNULL(p.probabilidad,0)               AS probabilidad,
     ISNULL(p.nivel_riesgo_pld,0)           AS nivel_riesgo_pld,
@@ -173,6 +176,7 @@ WHERE c.id = @id;"
                         Dim r = New With {
                             .id = rd("id"),
                             .descripcion = rd("descripcion"),
+                            .es_revolvente = If(IsDBNull(rd("es_revolvente")), 0, rd("es_revolvente")),
                             .impacto = rd("impacto"),
                             .probabilidad = rd("probabilidad"),
                             .nivel_riesgo_pld = rd("nivel_riesgo_pld"),
@@ -199,6 +203,7 @@ WHERE c.id = @id;"
         Dim tipoId As Integer = ToInt(If(data.ContainsKey("tipo_estado_cuenta_id"), data("tipo_estado_cuenta_id"), 0))
         Dim mitigantes As Integer = ToInt(If(data.ContainsKey("mitigantes"), data("mitigantes"), 0))
         Dim estatus As Integer = ToBit(If(data.ContainsKey("estatus"), data("estatus"), 1))
+        Dim esRevolvente As Integer = ToBit(If(data.ContainsKey("es_revolvente"), data("es_revolvente"), 0))
 
         If String.IsNullOrWhiteSpace(descripcion) Then
             Write(ctx, New With {.ok = False, .mensaje = "Falta descripción."})
@@ -215,10 +220,11 @@ WHERE c.id = @id;"
             Try
                 Dim idNew As Integer
                 Using cmd As New SqlCommand("
-INSERT INTO dbo.catalogo_creditos(nombre_credito, activo, fecha_creacion)
-VALUES (@desc, 1, GETDATE());
+INSERT INTO dbo.catalogo_creditos(nombre_credito, activo, fecha_creacion, es_revolvente)
+VALUES (@desc, 1, GETDATE(), @rev);
 SELECT CAST(SCOPE_IDENTITY() AS INT);", cn, tx)
                     cmd.Parameters.AddWithValue("@desc", descripcion)
+                    cmd.Parameters.AddWithValue("@rev", esRevolvente)
                     idNew = Convert.ToInt32(cmd.ExecuteScalar())
                 End Using
 
@@ -255,6 +261,7 @@ VALUES (@id, @imp, @prob, @riesgo, @tipo, @mit, @est, GETDATE());", cn, tx)
         Dim tipoId As Integer = ToInt(If(data.ContainsKey("tipo_estado_cuenta_id"), data("tipo_estado_cuenta_id"), 0))
         Dim mitigantes As Integer = ToInt(If(data.ContainsKey("mitigantes"), data("mitigantes"), 0))
         Dim estatus As Integer = ToBit(If(data.ContainsKey("estatus"), data("estatus"), 1))
+        Dim esRevolvente As Integer = ToBit(If(data.ContainsKey("es_revolvente"), data("es_revolvente"), 0))
 
         If id <= 0 Then
             Write(ctx, New With {.ok = False, .mensaje = "ID inválido."})
@@ -273,8 +280,9 @@ VALUES (@id, @imp, @prob, @riesgo, @tipo, @mit, @est, GETDATE());", cn, tx)
             cn.Open()
             Dim tx = cn.BeginTransaction()
             Try
-                Using cmd As New SqlCommand("UPDATE dbo.catalogo_creditos SET nombre_credito=@desc WHERE id=@id;", cn, tx)
+                Using cmd As New SqlCommand("UPDATE dbo.catalogo_creditos SET nombre_credito=@desc, es_revolvente=@rev WHERE id=@id;", cn, tx)
                     cmd.Parameters.AddWithValue("@desc", descripcion)
+                    cmd.Parameters.AddWithValue("@rev", esRevolvente)
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()
                 End Using
