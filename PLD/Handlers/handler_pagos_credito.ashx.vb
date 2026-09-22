@@ -376,7 +376,7 @@ Public Class handler_pagos_credito
             " c.rfc, c.curp, sc.monto_solicitado, " &
             " CAST(CASE WHEN ISNULL(cc.es_revolvente,0)=1 THEN ISNULL(vr.saldo_utilizado,0) ELSE COALESCE(ultimo.saldo_despues_pago,sc.monto_solicitado,0) END AS decimal(18,2)) AS saldo_vigente, " &
             " sc.estatus AS estatus_solicitud, sc.plazo, sc.moneda_id, md.moneda, md.clave AS moneda_clave, sc.canal_pago_id, cp.canal AS canal_pago, " &
-            " ISNULL(secuencia.ultimo_numero,0)+1 AS siguiente_numero_pago, cc.nombre_credito AS tipo_credito, ISNULL(cc.es_revolvente,0) AS es_revolvente, " &
+            " ISNULL(secuencia.ultimo_numero,0)+1 AS siguiente_numero_pago, pf.descripcion_larga AS producto_financiero, cc.nombre_credito AS tipo_credito, ISNULL(cc.es_revolvente,0) AS es_revolvente, " &
             " sc.monto_autorizado, vr.disponible, " &
             " CASE WHEN TRY_CONVERT(int,@qExacta)=sc.id THEN 0 WHEN TRY_CONVERT(int,@qExacta)=sc.cliente_id THEN 1 " &
             "      WHEN UPPER(ISNULL(c.rfc,''))=@qExactaUpper OR UPPER(ISNULL(c.curp,''))=@qExactaUpper THEN 2 ELSE 3 END AS orden " &
@@ -396,13 +396,13 @@ Public Class handler_pagos_credito
             " SELECT CAST(N'cliente' AS nvarchar(10)), CAST(NULL AS int), c.id_cliente, " &
             " LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre,''),' ',ISNULL(c.segundo_nombre,''),' ',ISNULL(c.apellido_paterno,''),' ',ISNULL(c.apellido_materno,'')),'  ',' '),'  ',' '))), " &
             " c.rfc,c.curp,CAST(NULL AS decimal(18,2)),CAST(NULL AS decimal(18,2)),CAST(NULL AS nvarchar(30)),CAST(NULL AS int),CAST(NULL AS int),CAST(NULL AS nvarchar(200)),CAST(NULL AS nvarchar(50)),CAST(NULL AS int),CAST(NULL AS nvarchar(200)),CAST(NULL AS int), " &
-            " CAST(NULL AS nvarchar(150)),CAST(0 AS bit),CAST(NULL AS decimal(18,2)),CAST(NULL AS decimal(18,2)), " &
+            " CAST(NULL AS nvarchar(200)),CAST(NULL AS nvarchar(150)),CAST(0 AS bit),CAST(NULL AS decimal(18,2)),CAST(NULL AS decimal(18,2)), " &
             " CASE WHEN TRY_CONVERT(int,@qExacta)=c.id_cliente THEN 0 WHEN UPPER(ISNULL(c.rfc,''))=@qExactaUpper OR UPPER(ISNULL(c.curp,''))=@qExactaUpper THEN 1 ELSE 4 END " &
             " FROM dbo.cliente_persona_fisica c WHERE @incluirClientes=1 " &
             " AND EXISTS (SELECT 1 FROM dbo.solicitud_credito scx WHERE scx.cliente_id=c.id_cliente AND scx.activo=1) " &
             " AND (CONVERT(varchar(20),c.id_cliente) LIKE @qLike OR UPPER(ISNULL(c.rfc,'')) LIKE @qLikeUpper OR UPPER(ISNULL(c.curp,'')) LIKE @qLikeUpper " &
             " OR UPPER(LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre,''),' ',ISNULL(c.segundo_nombre,''),' ',ISNULL(c.apellido_paterno,''),' ',ISNULL(c.apellido_materno,'')),'  ',' '),'  ',' ')))) LIKE @qLikeUpper)" &
-            ") SELECT TOP (@limite) tipo,solicitud_credito_id,cliente_id,cliente_nombre,rfc,curp,monto_solicitado,saldo_vigente,estatus_solicitud,plazo,moneda_id,moneda,moneda_clave,canal_pago_id,canal_pago,siguiente_numero_pago,tipo_credito,es_revolvente,monto_autorizado,disponible " &
+            ") SELECT TOP (@limite) tipo,solicitud_credito_id,cliente_id,cliente_nombre,rfc,curp,monto_solicitado,saldo_vigente,estatus_solicitud,plazo,moneda_id,moneda,moneda_clave,canal_pago_id,canal_pago,siguiente_numero_pago,producto_financiero,tipo_credito,es_revolvente,monto_autorizado,disponible " &
             "FROM referencias ORDER BY orden,CASE WHEN tipo=N'cliente' THEN 0 ELSE 1 END,cliente_nombre,solicitud_credito_id DESC;"
 
         Dim parametros As New List(Of SqlParameter) From {
