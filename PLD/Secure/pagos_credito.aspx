@@ -436,6 +436,7 @@
             let tablaPagos = null;
             let modalPago = null;
             let modalDetallePago = null;
+            let creditoPagoSeleccionado = null;
             let catalogos = {
                 tipo_pago: [],
                 canal_pago: [],
@@ -752,6 +753,7 @@
             }
 
             function seleccionarCreditoPago(item) {
+                creditoPagoSeleccionado = item || null;
                 document.getElementById("pagoSolicitudId").value = item.solicitud_credito_id || "";
                 document.getElementById("pagoClienteId").value = item.cliente_id || "";
                 const esRevolvente = item.es_revolvente === true || item.es_revolvente === 1 || item.es_revolvente === "1";
@@ -779,6 +781,7 @@
             }
 
             function limpiarCreditoPago() {
+                creditoPagoSeleccionado = null;
                 document.getElementById("pagoSolicitudId").value = "";
                 document.getElementById("pagoClienteId").value = "";
                 document.getElementById("pagoMontoCreditoOriginal").value = "";
@@ -1134,27 +1137,36 @@
             function recalcularPago() {
                 const monto = numeroRaw(document.getElementById("pagoMonto").value);
                 const tipoCambio = numeroRaw(document.getElementById("pagoTipoCambio").value) || 1;
-                const capital = numeroRaw(document.getElementById("pagoMontoCapital").value || monto);
                 const saldoAntes = numeroRaw(document.getElementById("pagoSaldoAntes").value);
                 const montoCredito = numeroRaw(document.getElementById("pagoMontoCreditoOriginal").value);
+                const esRevolvente = !!creditoPagoSeleccionado &&
+                    (creditoPagoSeleccionado.es_revolvente === true || creditoPagoSeleccionado.es_revolvente === 1 || creditoPagoSeleccionado.es_revolvente === "1");
 
                 if (monto > 0) {
                     document.getElementById("pagoEquivalenteMxn").value = numero(monto * tipoCambio, 2);
 
                     if (!document.getElementById("pagoMontoCapital").value) {
-                        document.getElementById("pagoMontoCapital").value = numero(monto, 2);
+                        const capitalSugerido = esRevolvente ? Math.min(monto, Math.max(saldoAntes, 0)) : monto;
+                        document.getElementById("pagoMontoCapital").value = numero(capitalSugerido, 2);
                     }
                 }
 
-                if (saldoAntes > 0) {
-                    const saldoDespues = Math.max(saldoAntes - capital, 0);
-                    document.getElementById("pagoSaldoDespues").value = numero(saldoDespues, 2);
-                    document.getElementById("pagoEsExcedente").checked = monto > saldoAntes;
-                    document.getElementById("pagoEsLiquidacion").checked = saldoDespues <= 0;
-                }
+                const capital = numeroRaw(document.getElementById("pagoMontoCapital").value);
+                const saldoDespues = Math.max(saldoAntes - capital, 0);
+                document.getElementById("pagoSaldoDespues").value = numero(saldoDespues, 2);
 
-                if (montoCredito > 0 && monto > 0) {
-                    document.getElementById("pagoPorcentajePagado").value = numero((monto / montoCredito) * 100, 4);
+                if (esRevolvente) {
+                    document.getElementById("pagoEsExcedente").checked = capital > saldoAntes;
+                    document.getElementById("pagoEsLiquidacion").checked = false;
+                    document.getElementById("pagoEsLiquidacionAnticipada").checked = false;
+                    document.getElementById("pagoPorcentajePagado").value = "0.0000";
+                } else {
+                    document.getElementById("pagoEsExcedente").checked = monto > saldoAntes;
+                    document.getElementById("pagoEsLiquidacion").checked = saldoAntes > 0 && saldoDespues <= 0;
+
+                    if (montoCredito > 0 && monto > 0) {
+                        document.getElementById("pagoPorcentajePagado").value = numero((monto / montoCredito) * 100, 4);
+                    }
                 }
 
                 detectarFlagsPLD();
@@ -1176,10 +1188,12 @@
                     document.getElementById("pagoEsMonedaExtranjera").checked = false;
                 }
 
+                const esRevolvente = !!creditoPagoSeleccionado &&
+                    (creditoPagoSeleccionado.es_revolvente === true || creditoPagoSeleccionado.es_revolvente === 1 || creditoPagoSeleccionado.es_revolvente === "1");
                 const esLiquidacion = document.getElementById("pagoEsLiquidacion").checked;
                 const porcentajePlazo = numeroRaw(document.getElementById("pagoPorcentajePlazo").value);
 
-                document.getElementById("pagoEsLiquidacionAnticipada").checked = esLiquidacion && porcentajePlazo < 100;
+                document.getElementById("pagoEsLiquidacionAnticipada").checked = !esRevolvente && esLiquidacion && porcentajePlazo < 100;
             }
 
             function validarPago() {
@@ -1211,6 +1225,31 @@
                 if (numeroRaw(document.getElementById("pagoTipoCambio").value) <= 0) {
                     mostrarError("El tipo de cambio debe ser mayor a cero.");
                     return false;
+                }
+
+                const capital = numeroRaw(document.getElementById("pagoMontoCapital").value);
+                const monto = numeroRaw(document.getElementById("pagoMonto").value);
+                if (capital < 0 || capital > monto) {
+                    mostrarError("El capital aplicado debe estar entre cero y el monto total del pago.");
+                    return false;
+                }
+
+                const esRevolvente = !!creditoPagoSeleccionado &&
+                    (creditoPagoSeleccionado.es_revolvente === true || creditoPagoSeleccionado.es_revolvente === 1 || creditoPagoSeleccionado.es_revolvente === "1");
+
+                if (esRevolvente) {
+                    const saldoAntes = numeroRaw(document.getElementById("pagoSaldoAntes").value);
+                    if (capital > saldoAntes) {
+                        mostrarError("El capital aplicado no puede exceder el saldo utilizado de la línea.");
+                        return false;
+                    }
+
+                    const monedaCredito = parseInt(creditoPagoSeleccionado.moneda_id || "0", 10);
+                    const monedaPago = parseInt(document.getElementById("pagoMonedaId").value || "0", 10);
+                    if (capital > 0 && monedaCredito > 0 && monedaPago !== monedaCredito) {
+                        mostrarError("Para amortizar capital revolvente, la moneda del pago debe coincidir con la moneda del crédito.");
+                        return false;
+                    }
                 }
 
                 return true;
@@ -1366,11 +1405,17 @@
 
                 Swal.fire({
                     title: "Cancelar pago",
-                    text: "Esta acción marcará el pago como cancelado. ¿Deseas continuar?",
+                    text: "La cancelación conserva trazabilidad y puede ser bloqueada si afecta una línea revolvente.",
                     icon: "warning",
+                    input: "textarea",
+                    inputLabel: "Motivo de cancelación",
+                    inputPlaceholder: "Captura el motivo...",
                     showCancelButton: true,
                     confirmButtonText: "Sí, cancelar",
-                    cancelButtonText: "No"
+                    cancelButtonText: "No",
+                    inputValidator: function (value) {
+                        if (!String(value || "").trim()) return "El motivo de cancelación es obligatorio.";
+                    }
                 }).then(function (result) {
                     if (!result.isConfirmed) {
                         return;
@@ -1379,7 +1424,7 @@
                     const formData = new FormData();
                     formData.append("action", "cancelar");
                     formData.append("id", id);
-                    formData.append("motivo", "Cancelado desde módulo de pagos.");
+                    formData.append("motivo", String(result.value || "").trim());
 
                     fetchJson(HANDLER, {
                         method: "POST",
