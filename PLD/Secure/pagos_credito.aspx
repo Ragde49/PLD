@@ -1183,7 +1183,10 @@
                 const monedaOption = monedaSelect.options[monedaSelect.selectedIndex];
                 const claveMoneda = monedaOption ? valorSeguro(monedaOption.getAttribute("data-clave")).toUpperCase() : "";
 
-                document.getElementById("pagoEsEfectivo").checked = tipoTexto.indexOf("EFECTIVO") >= 0;
+                const textoTipoNormalizado = tipoTexto.replace(/[-_]/g, " ").replace(/\s+/g, " ").trim();
+                const esNoEfectivo = textoTipoNormalizado.indexOf("NO EFECTIVO") >= 0;
+                document.getElementById("pagoEsEfectivo").checked =
+                    !esNoEfectivo && textoTipoNormalizado.indexOf("EFECTIVO") >= 0;
 
                 if (claveMoneda && claveMoneda !== "MXN" && claveMoneda !== "MXP" && claveMoneda !== "MXV") {
                     document.getElementById("pagoEsMonedaExtranjera").checked = true;
