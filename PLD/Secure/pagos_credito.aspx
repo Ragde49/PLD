@@ -640,6 +640,8 @@
                                 " · Todos sus créditos";
                         } else {
                             detalle.textContent = "RFC: " + (valorSeguro(item.rfc) || "Sin RFC") +
+                                " · Producto: " + (valorSeguro(item.producto_financiero) || "—") +
+                                " · Tipo: " + (valorSeguro(item.tipo_credito) || "—") +
                                 " · Monto: $" + numero(item.monto_solicitado, 2) +
                                 " · Saldo: $" + numero(item.saldo_vigente, 2) +
                                 " · " + valorSeguro(item.estatus_solicitud);
@@ -770,6 +772,7 @@
                 resumen.textContent = "Solicitud #" + valorSeguro(item.solicitud_credito_id) +
                     " · " + valorSeguro(item.cliente_nombre) +
                     " · RFC: " + (valorSeguro(item.rfc) || "Sin RFC") +
+                    " · Producto: " + (valorSeguro(item.producto_financiero) || "—") +
                     " · Tipo: " + (valorSeguro(item.tipo_credito) || "—") +
                     " · Saldo vigente: $" + numero(item.saldo_vigente, 2) +
                     (esRevolvente ? " · Disponible: $" + numero(item.disponible, 2) : "") +
