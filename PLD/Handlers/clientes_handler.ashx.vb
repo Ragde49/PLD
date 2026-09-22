@@ -190,6 +190,11 @@ Public Class clientes_handler
         Dim fechaNac = ToDate(GetField(ctx, json, "fecha_nacimiento"))
         Dim sexo = GetField(ctx, json, "sexo")
         Dim curp = GetField(ctx, json, "curp")
+        Dim pep As Boolean = False
+        Dim pepRaw As String = GetField(ctx, json, "pep")
+        If Not String.IsNullOrWhiteSpace(pepRaw) Then
+            pep = (pepRaw = "1" OrElse pepRaw.Equals("true", StringComparison.OrdinalIgnoreCase))
+        End If
         Dim estadoCivil = GetField(ctx, json, "estado_civil")
 
         ' Regimen / dependientes / escolaridad / antigüedad laboral
@@ -291,6 +296,12 @@ Public Class clientes_handler
         If String.IsNullOrEmpty(primerNombre) OrElse String.IsNullOrEmpty(apPaterno) Then
             WriteError(ctx, "Primer nombre y apellido paterno son obligatorios.") : Exit Sub
         End If
+        If String.IsNullOrWhiteSpace(curp) Then
+            WriteError(ctx, "La CURP es obligatoria.") : Exit Sub
+        End If
+        If String.IsNullOrWhiteSpace(curp) Then
+            WriteError(ctx, "La CURP es obligatoria.") : Exit Sub
+        End If
         If Not fechaNac.HasValue Then
             WriteError(ctx, "La fecha de nacimiento es obligatoria.") : Exit Sub
         End If
@@ -316,7 +327,7 @@ Public Class clientes_handler
                     Dim sql As String = "
                     INSERT INTO cliente_persona_fisica
                     (primer_nombre, segundo_nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, estado_civil,
-                     curp, rfc, nacionalidad, calle, numero_exterior, numero_interior, colonia, codigo_postal, municipio, estado,
+                     curp, rfc, nacionalidad, puesto_politico, calle, numero_exterior, numero_interior, colonia, codigo_postal, municipio, estado,
                      ciudad, referencias, pais, telefono_casa, celular, email, empresa, puesto, antiguedad_empleo,
                      ingresos_brutos, ingresos_netos, otros_ingresos, egresos, telefono_empresa, email_trabajo,
                      origen_otros_ingresos, acepta_aviso_privacidad, tipo_identificacion, numero_identificacion, vigencia_identificacion,
@@ -328,7 +339,7 @@ Public Class clientes_handler
                      fecha_captura, usuario_captura)
                     VALUES
                     (@pnom,@snom,@apat,@amat,@sexo,@fnac,@ecivil,
-                     @curp,@rfc,@nacionalidad,@calle,@numext,@numint,@col,@cp,@mun,@edo,
+                     @curp,@rfc,@nacionalidad,@pep,@calle,@numext,@numint,@col,@cp,@mun,@edo,
                      @ciudad,@refs,@pais,@tcasa,@cel,@mail,@emp,@puesto,@antig,
                      @ingb,@ingn,@otros,@egre,@telEmp,@mailEmp,
                      @origen,@aviso,@tident,@nident,@vigident,
@@ -354,6 +365,7 @@ Public Class clientes_handler
                         cmd.Parameters.Add("@curp", SqlDbType.VarChar, 18).Value = If(String.IsNullOrEmpty(curp), CType(DBNull.Value, Object), curp)
                         cmd.Parameters.Add("@rfc", SqlDbType.VarChar, 13).Value = rfc
                         cmd.Parameters.Add("@nacionalidad", SqlDbType.VarChar, 50).Value = If(String.IsNullOrEmpty(nacionalidadTxt), CType(DBNull.Value, Object), nacionalidadTxt)
+                        cmd.Parameters.Add("@pep", SqlDbType.Bit).Value = If(pep, 1, 0)
 
                         ' Domicilio
                         cmd.Parameters.Add("@calle", SqlDbType.VarChar, 150).Value = If(String.IsNullOrEmpty(calle), CType(DBNull.Value, Object), calle)
@@ -476,6 +488,11 @@ Public Class clientes_handler
         Dim fechaNac = ToDate(GetField(ctx, json, "fecha_nacimiento"))
         Dim sexo = GetField(ctx, json, "sexo")
         Dim curp = GetField(ctx, json, "curp")
+        Dim pep As Boolean = False
+        Dim pepRaw As String = GetField(ctx, json, "pep")
+        If Not String.IsNullOrWhiteSpace(pepRaw) Then
+            pep = (pepRaw = "1" OrElse pepRaw.Equals("true", StringComparison.OrdinalIgnoreCase))
+        End If
         Dim estadoCivil = GetField(ctx, json, "estado_civil")
 
         ' Regimen / dependientes / escolaridad
@@ -594,6 +611,7 @@ Public Class clientes_handler
                         curp=@curp,
                         rfc=@rfc,
                         nacionalidad=@nacionalidad,
+                        puesto_politico=@pep,
                         calle=@calle,
                         numero_exterior=@numext,
                         numero_interior=@numint,
@@ -657,6 +675,7 @@ Public Class clientes_handler
                         cmd.Parameters.Add("@curp", SqlDbType.VarChar, 18).Value = If(String.IsNullOrEmpty(curp), DBNull.Value, curp)
                         cmd.Parameters.Add("@rfc", SqlDbType.VarChar, 13).Value = rfc
                         cmd.Parameters.Add("@nacionalidad", SqlDbType.VarChar, 50).Value = If(String.IsNullOrEmpty(nacionalidadTxt), DBNull.Value, nacionalidadTxt)
+                        cmd.Parameters.Add("@pep", SqlDbType.Bit).Value = If(pep, 1, 0)
 
                         ' Domicilio
                         cmd.Parameters.Add("@calle", SqlDbType.VarChar, 150).Value = If(String.IsNullOrEmpty(calle), DBNull.Value, calle)
