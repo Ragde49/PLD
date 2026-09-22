@@ -6,6 +6,36 @@ Registro funcional y técnico de cambios relevantes del repositorio.
 
 ---
 
+## 2026-09-22 — Cierre Fase 4: perfil transaccional y PLD
+
+**Autor/agente:** ChatGPT / Bill  
+**Resumen:** Se implementó el perfil transaccional esperado del cliente para pagos, su comparación mensual contra comportamiento real y la conexión configurable con el motor existente de alertas PLD. No se sembraron umbrales ni reglas nuevas.
+
+**Archivos principales:**
+- `PLD/SQL/20260922_002_perfil_transaccional_cliente.sql`
+- `PLD/Handlers/clientes_handler.ashx.vb`
+- `PLD/Secure/captura_solicitud_credito.aspx`
+- `PLD/Handlers/handler_alertas_pld.ashx.vb`
+- `PLD/Handlers/handler_credito_revolvente.ashx.vb`
+- `PLD/Secure/credito_revolvente.aspx`
+- `PLD/PLD.vbproj`
+- `README.md`
+- `PLD/SQL/ESTRUCTURA_BASE_DATOS.md`
+- `cambios_codex/2026-09-22_002_plan_revolvente_hasta_rc_qa.md`
+- `cambios_codex/2026-09-22_004_fase4_perfil_transaccional_pld_revolvente.md`
+
+**Base de datos / SQL:** Sí. Se agregan dos datos declarados de perfil, auditoría y la vista mensual de comparación. No se insertan reglas PLD ni umbrales.
+
+**Estructura de BD actualizada:** Sí.
+
+**README actualizado:** Sí.
+
+**Validación:** Revisión estática de CRUD de cliente, migración, vista de comparación, integración del motor de alertas, deduplicación mensual y UI. No se ejecutó SQL Server ni compilación Visual Studio desde el conector GitHub.
+
+**Pendientes:** Umbrales de desviación y eventual perfil esperado de disposiciones requieren definición del cliente. Fase 3 permanece bloqueada por reglas financieras.
+
+---
+
 ## 2026-09-22 — Cierre Fase 2 de crédito revolvente
 
 **Autor/agente:** ChatGPT / Bill  
