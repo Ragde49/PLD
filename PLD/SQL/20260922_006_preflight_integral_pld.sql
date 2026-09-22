@@ -114,6 +114,18 @@ BEGIN
         FROM dbo.seguridad_pagina_handler ph
         JOIN dbo.seguridad_paginas p ON p.id=ph.pagina_id
         JOIN dbo.seguridad_paginas h ON h.id=ph.handler_id
+        WHERE p.ruta='/secure/listas_pld.aspx'
+          AND h.ruta='/handlers/handler_consulta_listas_pld.ashx'
+          AND ph.activo=1
+    )
+        INSERT INTO @errores(validacion,detalle)
+        VALUES(N'SEGURIDAD_LISTAS_CONSULTA_RELACION',N'Falta relación del handler de consulta con la página Listas PLD.');
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM dbo.seguridad_pagina_handler ph
+        JOIN dbo.seguridad_paginas p ON p.id=ph.pagina_id
+        JOIN dbo.seguridad_paginas h ON h.id=ph.handler_id
         WHERE p.ruta='/secure/captura_solicitud_credito.aspx'
           AND h.ruta='/handlers/handler_consulta_listas_pld.ashx'
           AND ph.activo=1
