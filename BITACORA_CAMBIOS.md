@@ -6,6 +6,73 @@ Registro funcional y técnico de cambios relevantes del repositorio.
 
 ---
 
+## 2026-09-22 — Cierre de pendientes desarrollables sin insumos del cliente
+
+**Autor/agente:** ChatGPT / Bill  
+**Resumen:** Se agotó el alcance desarrollable identificado que no requiere nuevas decisiones del cliente. Se corrigió identidad/PEP, se mejoró la selección de pagos, se implementó administración/consulta de listas PLD-PEP con trazabilidad y se agregó investigación formal de alertas.
+
+**Archivos principales:**
+- `PLD/Secure/captura_solicitud_credito.aspx`
+- `PLD/Handlers/clientes_handler.ashx.vb`
+- `PLD/Secure/pagos_credito.aspx`
+- `PLD/Handlers/handler_pagos_credito.ashx.vb`
+- `PLD/Secure/listas_pld.aspx`
+- `PLD/Secure/listas_pld.aspx.vb`
+- `PLD/Secure/listas_pld.aspx.designer.vb`
+- `PLD/Handlers/handler_listas_pld.ashx`
+- `PLD/Handlers/handler_listas_pld.ashx.vb`
+- `PLD/Handlers/handler_consulta_listas_pld.ashx`
+- `PLD/Handlers/handler_consulta_listas_pld.ashx.vb`
+- `PLD/Secure/catalogos.aspx`
+- `PLD/Secure/alertas_pld.aspx`
+- `PLD/Handlers/handler_alertas_pld.ashx.vb`
+- `PLD/SQL/20260922_004_listas_pld.sql`
+- `PLD/SQL/20260922_005_alertas_investigacion.sql`
+- `PLD/SQL/20260922_006_preflight_integral_pld.sql`
+- `PLD/PLD.vbproj`
+- `README.md`
+- `PLD/SQL/ESTRUCTURA_BASE_DATOS.md`
+- `PLD/Docs md/RC_QA_CREDITO_REVOLVENTE.md`
+- `cambios_codex/2026-09-22_006_cierre_pendientes_no_bloqueados.md`
+- `cambios_codex/2026-09-22_007_listas_pld_pep.md`
+- `cambios_codex/2026-09-22_008_investigacion_alertas_pld.md`
+
+**Correcciones operativas:**
+- Se corrigió el contrato frontend/backend de estado de nacimiento: `estado_nacimiento_id`.
+- Se alinearon obligatorios visuales con backend y esquema, incluida CURP.
+- El checkbox PEP ahora persiste en `cliente_persona_fisica.puesto_politico`.
+- La selección de crédito en pagos muestra producto, tipo, saldo y disponible.
+- Un tipo de pago que contenga `NO EFECTIVO` ya no se clasifica como efectivo.
+
+**Listas PLD / PEP:**
+- Carga manual XLSX/CSV.
+- Histórico de versiones y activación explícita de la vigente.
+- SHA-256 para detectar archivo duplicado.
+- Búsqueda exacta normalizada por nombre/RFC/CURP.
+- Auditoría de consultas y coincidencias.
+- Consulta integrada en Identidad.
+- Separación de privilegios: handler administrativo y handler de consulta de solo lectura.
+- No se implementaron similitud, fonética ni bloqueo automático.
+
+**Investigación de alertas:**
+- Historial independiente de análisis.
+- Resultados `EN_ANALISIS`, `JUSTIFICADA`, `NO_JUSTIFICADA`.
+- Comentario obligatorio, usuario, fecha y contexto de categoría/origen.
+- Integración con la bitácora existente.
+- El resultado de investigación no altera automáticamente el estatus operativo.
+
+**Base de datos / SQL:** Se agregaron migraciones 004 y 005 y un preflight integral 006. Las migraciones no fueron ejecutadas desde este entorno.
+
+**Estructura de BD actualizada:** Sí.
+
+**README actualizado:** Sí.
+
+**Validación:** Revisión estática de contratos frontend/backend, seguridad página-handler, SQL parametrizado, estructura documentada y reglas confirmadas. Por instrucción del solicitante, compilación, aplicación de migraciones y QA quedan diferidos hasta que se incorpore todo el alcance dependiente del cliente.
+
+**Pendientes funcionales:** Únicamente insumos/decisiones del cliente: Fase 3 financiera, umbrales PLD/perfil de disposiciones, muestra de estado de cuenta, layouts TXT, criterios de similitud/homónimos/bloqueo/proveedor externo y eventual automatización entre resultado de investigación y estatus.
+
+---
+
 ## 2026-09-22 — Cierre Fase 7: preparación técnica RC-QA de crédito revolvente
 
 **Autor/agente:** ChatGPT / Bill  
