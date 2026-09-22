@@ -312,6 +312,14 @@ Public Class handler_credito_revolvente
                         Return respuesta
                     End If
 
+                    Dim estatus As String = If(cab.IsNull("estatus"), "", Convert.ToString(cab("estatus"), CultureInfo.InvariantCulture)).Trim().ToUpperInvariant()
+                    If estatus <> "FINALIZADA" Then
+                        tr.Rollback()
+                        respuesta("ok") = False
+                        respuesta("mensaje") = "La solicitud debe estar FINALIZADA antes de configurar la línea revolvente."
+                        Return respuesta
+                    End If
+
                     Dim saldos = ObtenerSaldos(cn, tr, solicitudId, True)
                     If montoAutorizado < saldos("saldo_utilizado") Then
                         tr.Rollback()
