@@ -66,6 +66,9 @@ Public Class handler_alertas_pld
                 Case "generar_desde_pago_completo"
                     respuesta = GenerarAlertasDesdePagoCompleto(context)
 
+                Case "generar_desde_perfil_transaccional"
+                    respuesta = GenerarAlertasDesdePerfilTransaccional(context)
+
                 Case "cambiar_estatus"
                     respuesta = CambiarEstatusAlerta(context)
 
@@ -699,6 +702,56 @@ Public Class handler_alertas_pld
         Return respuesta
     End Function
 
+    Private Function GenerarAlertasDesdePerfilTransaccional(ByVal context As HttpContext) As Dictionary(Of String, Object)
+        Dim respuesta As New Dictionary(Of String, Object)()
+        Dim clienteId As Integer = ToInt(ObtenerParametro(context, "cliente_id"), 0)
+        Dim anio As Integer = ToInt(ObtenerParametro(context, "anio"), 0)
+        Dim mes As Integer = ToInt(ObtenerParametro(context, "mes"), 0)
+        Dim pagoId As Integer = ToInt(ObtenerParametro(context, "pago_credito_id"), 0)
+        Dim usuario As String = ObtenerUsuario(context)
+
+        Using cn As New SqlConnection(CadenaConexion())
+            cn.Open()
+            Using tr As SqlTransaction = cn.BeginTransaction()
+                Try
+                    If pagoId > 0 AndAlso (clienteId <= 0 OrElse anio <= 0 OrElse mes <= 0) Then
+                        Dim pago As DataRow = ObtenerFilaPorPago(cn, tr, pagoId)
+                        If pago Is Nothing Then
+                            respuesta("ok") = False
+                            respuesta("mensaje") = "No se encontró el pago."
+                            tr.Rollback()
+                            Return respuesta
+                        End If
+                        clienteId = ObtenerEnteroColumna(pago, "cliente_id")
+                        anio = ObtenerEnteroColumna(pago, "anio_pago")
+                        mes = ObtenerEnteroColumna(pago, "mes_pago")
+                    End If
+
+                    If clienteId <= 0 OrElse anio <= 0 OrElse mes <= 0 Then
+                        respuesta("ok") = False
+                        respuesta("mensaje") = "Debe indicar cliente_id, anio y mes, o un pago_credito_id válido."
+                        tr.Rollback()
+                        Return respuesta
+                    End If
+
+                    Dim resultado As Dictionary(Of String, Integer) = EvaluarPerfilTransaccional(cn, tr, clienteId, anio, mes, usuario)
+
+                    tr.Commit()
+                    respuesta("ok") = True
+                    respuesta("mensaje") = "Evaluación de perfil transaccional finalizada."
+                    respuesta("evaluadas") = resultado("evaluadas")
+                    respuesta("generadas") = resultado("generadas")
+                    respuesta("omitidas_duplicado") = resultado("omitidas_duplicado")
+                Catch ex As Exception
+                    tr.Rollback()
+                    Throw
+                End Try
+            End Using
+        End Using
+
+        Return respuesta
+    End Function
+
     Private Function GenerarAlertasDesdePagoCredito(ByVal context As HttpContext) As Dictionary(Of String, Object)
         Dim respuesta As New Dictionary(Of String, Object)()
         Dim solicitudId As Integer = ToInt(ObtenerParametro(context, "solicitud_id"), 0)
@@ -853,6 +906,11 @@ Public Class handler_alertas_pld
                         totalEvaluadas += rMensual("evaluadas")
                         totalGeneradas += rMensual("generadas")
                         totalOmitidas += rMensual("omitidas_duplicado")
+
+                        Dim rPerfil As Dictionary(Of String, Integer) = EvaluarPerfilTransaccional(cn, tr, clienteId, anio, mes, usuario)
+                        totalEvaluadas += rPerfil("evaluadas")
+                        totalGeneradas += rPerfil("generadas")
+                        totalOmitidas += rPerfil("omitidas_duplicado")
                     End If
 
                     If solicitudId > 0 Then
@@ -1011,6 +1069,25 @@ Public Class handler_alertas_pld
             solicitudIdBase,
             usuario,
             "Alerta generada automáticamente desde patrón de cliente por periodo."
+        )
+    End Function
+
+    Private Function EvaluarPerfilTransaccional(ByVal cn As SqlConnection, ByVal tr As SqlTransaction, ByVal clienteId As Integer, ByVal anio As Integer, ByVal mes As Integer, ByVal usuario As String) As Dictionary(Of String, Integer)
+        Dim fila As DataRow = ObtenerFilaPerfilTransaccional(cn, tr, clienteId, anio, mes)
+        If fila Is Nothing Then Return CrearResultadoEvaluacion()
+
+        Dim reglas As DataTable = ObtenerReglasActivasPorTipo(cn, tr, "PERFIL_TRANSACCIONAL")
+
+        Return EvaluarReglasSobreFila(
+            cn,
+            tr,
+            reglas,
+            fila,
+            "PERFIL_TRANSACCIONAL",
+            "vw_cliente_perfil_transaccional_mensual",
+            clienteId,
+            usuario,
+            "Alerta generada automáticamente desde comparación de perfil transaccional esperado contra pagos reales."
         )
     End Function
 
@@ -1188,6 +1265,22 @@ Public Class handler_alertas_pld
 
         If dt.Rows.Count = 0 Then Return Nothing
 
+        Return dt.Rows(0)
+    End Function
+
+    Private Function ObtenerFilaPerfilTransaccional(ByVal cn As SqlConnection, ByVal tr As SqlTransaction, ByVal clienteId As Integer, ByVal anio As Integer, ByVal mes As Integer) As DataRow
+        Dim sql As String =
+            "SELECT TOP 1 * " &
+            "FROM dbo.vw_cliente_perfil_transaccional_mensual " &
+            "WHERE cliente_id = @cliente_id AND anio = @anio AND mes = @mes;"
+
+        Dim dt As DataTable = EjecutarTablaTransaccion(cn, tr, sql, New List(Of SqlParameter) From {
+            New SqlParameter("@cliente_id", clienteId),
+            New SqlParameter("@anio", anio),
+            New SqlParameter("@mes", mes)
+        })
+
+        If dt.Rows.Count = 0 Then Return Nothing
         Return dt.Rows(0)
     End Function
 
