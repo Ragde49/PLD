@@ -2,6 +2,12 @@
 
 Sistema web para operación de **Prevención de Lavado de Dinero (PLD)** y procesos relacionados con **originación/administración de crédito**, construido con ASP.NET Web Forms y VB.NET.
 
+> [!IMPORTANT]
+> ## Instrucciones obligatorias para humanos, ChatGPT y Codex
+> Antes de analizar, modificar, crear o eliminar cualquier archivo de este repositorio se debe leer **completo** `AGENTS.md`.  
+> `AGENTS.md` es la **única fuente de instrucciones permanentes del proyecto**. Las solicitudes concretas para Codex se documentan en `cambios_codex/` y todo cambio terminado debe registrarse en `BITACORA_CAMBIOS.md`.
+
+
 > Este repositorio contiene software operativo y reglas configurables. Su existencia o funcionamiento técnico **no implica por sí mismo cumplimiento regulatorio**. Umbrales, criterios de riesgo, reportes y reglas PLD deben validarse contra la normativa vigente aplicable, el manual de cumplimiento de la institución y las políticas internas antes de usarse en producción.
 
 ## Estado técnico
@@ -74,7 +80,9 @@ No existe una capa ORM dominante en los módulos revisados: aunque el proyecto r
 
 ```text
 PLD.sln
-AGENTE.md
+AGENTS.md
+BITACORA_CAMBIOS.md
+cambios_codex/
 PLD/
 ├── App_Data/
 ├── Docs md/
@@ -474,7 +482,7 @@ No subir la carpeta `packages/`; está correctamente ignorada.
 
 ## Regla obligatoria al agregar páginas o handlers
 
-Consultar también `AGENTE.md`.
+Consultar también `AGENTS.md`.
 
 ### Página nueva
 
@@ -541,7 +549,7 @@ Un cliente puede presentar niveles distintos en ambos riesgos; no deben tratarse
 
 ## Documentación relacionada
 
-- `AGENTE.md`: reglas para páginas, handlers y seguridad.
+- `AGENTS.md`: reglas para páginas, handlers y seguridad.
 - `PLD/Docs md/pasos_codex_amortizacion_condusef.md`: especificación de amortización CONDUSEF.
 - `PLD/SQL/20260513_seguridad.sql`: estructura y datos iniciales de seguridad.
 - `PLD/SQL/20260513_seguridad_pagina_handler.sql`: relación página-handler.
