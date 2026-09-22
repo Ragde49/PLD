@@ -274,6 +274,18 @@ La captura de solicitud identifica explícitamente los productos revolventes. Pa
 
 La navegación operativa queda conectada entre Consulta PF → Crédito Revolvente → Pagos, manteniendo separado el comportamiento de crédito simple.
 
+La operación revolvente aplica controles adicionales de integridad:
+
+- importes monetarios del principal se normalizan a 2 decimales;
+- una disposición no puede exceder el disponible ni romper el saldo histórico de la línea;
+- una reversa no puede dejar capital amortizado mayor al capital dispuesto;
+- una modificación de vigencia no puede dejar disposiciones aplicadas fuera del nuevo periodo;
+- un pago a capital no puede superar el saldo actual ni el saldo existente en la fecha capturada;
+- para amortizar capital revolvente, la moneda del pago debe coincidir con la moneda del crédito mientras no exista una regla aprobada de conversión;
+- cancelar un pago se bloquea si la historia resultante produce saldo negativo o excede el límite autorizado;
+- el motivo de cancelación es obligatorio;
+- saldo utilizado y disponible se recalculan en servidor; el JavaScript no es fuente de verdad.
+
 La implementación actual no calcula intereses, pago mínimo, prelación de pagos, mora ni estado de cuenta contractual/regulatorio; esas reglas permanecen pendientes de definición funcional.
 
 ---
