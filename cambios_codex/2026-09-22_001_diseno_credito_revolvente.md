@@ -1,16 +1,16 @@
 # Cambio: Diseño técnico-funcional de crédito revolvente / cuenta corriente
 
-**Estado:** PENDIENTE  
+**Estado:** COMPLETADO  
 **Fecha:** 2026-09-22  
 **Solicitante:** Edgar / proyecto PLD  
 **Responsable/agente:** ChatGPT / Bill  
-**Tipo:** ANÁLISIS Y DISEÑO — NO IMPLEMENTAR SIN APROBACIÓN
+**Tipo:** ANÁLISIS, DISEÑO E IMPLEMENTACIÓN ESTRUCTURAL APROBADA
 
 ## Objetivo
 
 Definir cómo incorporar crédito revolvente al sistema PLD sin romper el crédito simple actual, considerando que una misma línea/contrato vigente puede tener múltiples disposiciones, pagos periódicos de intereses y abonos opcionales a capital.
 
-Este documento es una propuesta de arquitectura basada en el código actual. **No contiene migraciones ni autoriza cambios de base de datos.**
+El diseño fue aprobado y se implementaron las Fases 1 y 2 estructurales. Las reglas financieras no confirmadas permanecen fuera de alcance.
 
 ---
 
@@ -650,3 +650,18 @@ No aplica todavía. El sistema no cambió; solamente se documentó una propuesta
 - contrastar la base de datos real antes de cualquier migración;
 - recibir muestra de estado de cuenta antes de diseñar su formato definitivo;
 - no implementar hasta aprobación del diseño.
+
+
+---
+
+## Implementación ejecutada — 2026-09-22
+
+**Estado final:** COMPLETADO para Fases 1 y 2 estructurales.
+
+Implementado: bandera de tipo revolvente, límite autorizado y vigencia, tabla de disposiciones, vista de saldo, handler y pantalla operativa, historial cargos/abonos, integración con Consulta PF y pagos, protección contra sobregiros por concurrencia y contra cancelaciones que invaliden disposiciones posteriores, además del registro de seguridad página-handler.
+
+**SQL:** `PLD/SQL/20260922_001_credito_revolvente.sql`
+
+Pendiente por definición funcional: cálculo de intereses, fecha de corte, pago mínimo, prelación de pagos, mora y estado de cuenta contractual/regulatorio.
+
+**Validación:** revisión estática integral. La migración debe ejecutarse primero en una base de pruebas antes de publicar el código en IIS.
