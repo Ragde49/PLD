@@ -148,6 +148,8 @@ BEGIN TRY
             SELECT '/secure/listas_pld.aspx' AS ruta, 'Listas PLD / PEP' AS titulo, 'PLD' AS modulo, CAST(0 AS bit) AS es_handler
             UNION ALL
             SELECT '/handlers/handler_listas_pld.ashx', 'handler_listas_pld', 'Handler', CAST(1 AS bit)
+            UNION ALL
+            SELECT '/handlers/handler_consulta_listas_pld.ashx', 'handler_consulta_listas_pld', 'Handler', CAST(1 AS bit)
         ) AS source
         ON target.ruta=source.ruta
         WHEN MATCHED THEN
@@ -158,6 +160,7 @@ BEGIN TRY
 
         DECLARE @paginaListas INT=(SELECT id FROM dbo.seguridad_paginas WHERE ruta='/secure/listas_pld.aspx');
         DECLARE @handlerListas INT=(SELECT id FROM dbo.seguridad_paginas WHERE ruta='/handlers/handler_listas_pld.ashx');
+        DECLARE @handlerConsultaListas INT=(SELECT id FROM dbo.seguridad_paginas WHERE ruta='/handlers/handler_consulta_listas_pld.ashx');
         DECLARE @paginaCatalogos INT=(SELECT id FROM dbo.seguridad_paginas WHERE ruta='/secure/catalogos.aspx');
         DECLARE @paginaSolicitud INT=(SELECT id FROM dbo.seguridad_paginas WHERE ruta='/secure/captura_solicitud_credito.aspx');
 
@@ -168,10 +171,15 @@ BEGIN TRY
                 INSERT INTO dbo.seguridad_pagina_handler(pagina_id,handler_id,activo,fecha_creacion)
                 VALUES(@paginaListas,@handlerListas,1,GETDATE());
 
-            IF @paginaSolicitud IS NOT NULL AND @handlerListas IS NOT NULL
-               AND NOT EXISTS(SELECT 1 FROM dbo.seguridad_pagina_handler WHERE pagina_id=@paginaSolicitud AND handler_id=@handlerListas)
+            IF @paginaListas IS NOT NULL AND @handlerConsultaListas IS NOT NULL
+               AND NOT EXISTS(SELECT 1 FROM dbo.seguridad_pagina_handler WHERE pagina_id=@paginaListas AND handler_id=@handlerConsultaListas)
                 INSERT INTO dbo.seguridad_pagina_handler(pagina_id,handler_id,activo,fecha_creacion)
-                VALUES(@paginaSolicitud,@handlerListas,1,GETDATE());
+                VALUES(@paginaListas,@handlerConsultaListas,1,GETDATE());
+
+            IF @paginaSolicitud IS NOT NULL AND @handlerConsultaListas IS NOT NULL
+               AND NOT EXISTS(SELECT 1 FROM dbo.seguridad_pagina_handler WHERE pagina_id=@paginaSolicitud AND handler_id=@handlerConsultaListas)
+                INSERT INTO dbo.seguridad_pagina_handler(pagina_id,handler_id,activo,fecha_creacion)
+                VALUES(@paginaSolicitud,@handlerConsultaListas,1,GETDATE());
         END;
 
         IF OBJECT_ID('dbo.seguridad_rol_pagina','U') IS NOT NULL AND @paginaCatalogos IS NOT NULL AND @paginaListas IS NOT NULL
