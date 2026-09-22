@@ -450,7 +450,38 @@
             inicializarAutocompletados();
             inicializarTabla();
             cargarCatalogos();
-            cargarPagos();
+            aplicarFiltroDesdeQuerystring().then(function () {
+                cargarPagos();
+            });
+
+            async function aplicarFiltroDesdeQuerystring() {
+                const qs = new URLSearchParams(window.location.search);
+                const solicitudId = parseInt(qs.get("solicitud_id") || "0", 10);
+                if (!(solicitudId > 0)) return;
+
+                try {
+                    const resp = await fetchJson(construirUrl("buscar_referencias", {
+                        q: solicitudId,
+                        modo: "captura",
+                        limite: 20
+                    }));
+                    if (!resp.ok) return;
+
+                    const item = (resp.data || []).find(function (x) {
+                        return x.tipo === "credito" && parseInt(x.solicitud_credito_id || "0", 10) === solicitudId;
+                    });
+                    if (!item) return;
+
+                    document.getElementById("filtroSolicitudId").value = solicitudId;
+                    document.getElementById("filtroClienteId").value = "";
+                    document.getElementById("filtroReferenciaCredito").value =
+                        "Solicitud #" + valorSeguro(item.solicitud_credito_id) + " · " + valorSeguro(item.cliente_nombre);
+                    document.getElementById("filtroReferenciaSeleccionada").textContent =
+                        "Filtrando por la solicitud #" + valorSeguro(item.solicitud_credito_id) + ".";
+                } catch (e) {
+                    console.warn("No se pudo aplicar filtro desde URL:", e);
+                }
+            }
 
             function inicializarModales() {
                 modalPago = new bootstrap.Modal(document.getElementById("modalPago"));
