@@ -1,6 +1,6 @@
 # Plan de cierre — Crédito revolvente hasta versión candidata para QA
 
-**Estado:** PENDIENTE  
+**Estado:** EN_PROGRESO  
 **Fecha:** 2026-09-22  
 **Solicitante:** Edgar / proyecto PLD  
 **Responsable:** ChatGPT / Bill + Codex  
@@ -41,6 +41,7 @@ Esta línea base **no debe rediseñarse** salvo que una prueba revele un defecto
 
 ## 2. Fase 1 — Cierre técnico de integración
 
+**Estado:** COMPLETADO — 2026-09-22  
 **Clasificación:** BLOQUEA RC PARA QA  
 **Dependencia de reglas nuevas:** NO
 
@@ -68,9 +69,22 @@ Cerrar huecos técnicos entre el módulo revolvente y los flujos existentes sin 
 6. Revisar que la migración `20260922_001_credito_revolvente.sql` sea segura para ejecución repetida donde sea razonable.
 7. Limpiar documentación contradictoria del cambio 001 que todavía conserva texto histórico de estado `PENDIENTE`.
 
+### Resultado
+
+- [x] `es_revolvente` integrado en la captura.
+- [x] Producto revolvente identificado visualmente.
+- [x] `monto_solicitado` conservado como línea solicitada.
+- [x] Amortización fija CONDUSEF oculta/bloqueada en UI para revolvente.
+- [x] Backend rechaza `amortizacion_condusef` para revolvente.
+- [x] Configuración de línea requiere solicitud `FINALIZADA`.
+- [x] Disposiciones requieren solicitud `FINALIZADA`.
+- [x] Navegación Consulta PF → Revolvente → Pagos cerrada.
+- [x] Migración revisada y endurecida para reejecución de relación página-handler.
+- [x] Crédito simple conserva el flujo de amortización actual.
+
 ### Criterio de salida
 
-El sistema distingue SIMPLE vs REVOLVENTE desde la solicitud y no aplica lógica de amortización fija al revolvente.
+**CUMPLIDO.** El sistema distingue SIMPLE vs REVOLVENTE desde la solicitud y no aplica lógica de amortización fija al revolvente.
 
 ---
 
