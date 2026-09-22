@@ -111,8 +111,8 @@
                     <div class="row g-3">
                         <!-- Identificadores -->
                         <div class="col-md-3">
-                            <label class="form-label">RFC</label>
-                            <input type="text" class="form-control" id="cli_rfc" maxlength="13" placeholder="GODE561231GR8">
+                            <label class="form-label">RFC <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cli_rfc" maxlength="13" placeholder="GODE561231GR8" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">CURP</label>
@@ -131,16 +131,16 @@
 
                         <!-- Nombre -->
                         <div class="col-md-3">
-                            <label class="form-label">Primer nombre</label>
-                            <input type="text" class="form-control" id="cli_primer_nombre" maxlength="100">
+                            <label class="form-label">Primer nombre <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cli_primer_nombre" maxlength="100" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Segundo nombre</label>
                             <input type="text" class="form-control" id="cli_segundo_nombre" maxlength="100">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Apellido paterno</label>
-                            <input type="text" class="form-control" id="cli_ap_paterno" maxlength="100">
+                            <label class="form-label">Apellido paterno <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cli_ap_paterno" maxlength="100" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Apellido materno</label>
@@ -149,12 +149,12 @@
 
                         <!-- Datos personales -->
                         <div class="col-md-3">
-                            <label class="form-label">Fecha nacimiento</label>
-                            <input type="date" class="form-control" id="cli_fecha_nac">
+                            <label class="form-label">Fecha nacimiento <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="cli_fecha_nac" required>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Sexo</label>
-                            <select class="form-select" id="cli_sexo">
+                            <label class="form-label">Sexo <span class="text-danger">*</span></label>
+                            <select class="form-select" id="cli_sexo" required>
                                 <option value="">— Seleccionar —</option>
                                 <option value="M">Masculino</option>
                                 <option value="F">Femenino</option>
@@ -177,8 +177,8 @@
 
                         <!-- Estado civil / dependientes / escolaridad -->
                         <div class="col-md-3">
-                            <label class="form-label">Estado civil</label>
-                            <select id="cli_estado_civil" class="form-select">
+                            <label class="form-label">Estado civil <span class="text-danger">*</span></label>
+                            <select id="cli_estado_civil" class="form-select" required>
                                 <option value="">—</option>
                                 <option value="SOLTERO">Soltero(a)</option>
                                 <option value="CASADO">Casado(a)</option>
@@ -1521,7 +1521,7 @@
             pais_nacimiento: pais_nac_txt,
             pais_nacimiento_id: pais_nac_id,
             entidad_nacimiento: ent_nac_txt,
-            entidad_nacimiento_id: ent_nac_id,
+            estado_nacimiento_id: ent_nac_id,
 
             estado_civil: (document.getElementById('cli_estado_civil').value || '').trim() || null,
             regimen_matrimonial: (document.getElementById('cli_regimen_matrimonial').value || '').trim() || null,
@@ -1551,8 +1551,12 @@
         const cliId = int(document.getElementById('cli_id').value, 0);
         const p = leerCliente();
 
-        if (!p.primer_nombre || !p.ap_paterno || !p.rfc) {
-            return swal.fire('Identidad', 'RFC, Primer nombre y Apellido paterno son obligatorios.', 'warning');
+        if (!p.rfc || !p.primer_nombre || !p.ap_paterno || !p.fecha_nacimiento || !p.sexo || !p.estado_civil) {
+            return swal.fire(
+                'Identidad',
+                'Completa los campos obligatorios: RFC, Primer nombre, Apellido paterno, Fecha de nacimiento, Sexo y Estado civil.',
+                'warning'
+            );
         }
         if (p.perfil_pagos_mensuales_esperados !== null && p.perfil_pagos_mensuales_esperados < 0) {
             return swal.fire('Perfil transaccional', 'Los pagos esperados por mes no pueden ser negativos.', 'warning');
