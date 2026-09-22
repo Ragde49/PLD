@@ -180,6 +180,11 @@ BEGIN TRY
                AND NOT EXISTS(SELECT 1 FROM dbo.seguridad_pagina_handler WHERE pagina_id=@paginaSolicitud AND handler_id=@handlerConsultaListas)
                 INSERT INTO dbo.seguridad_pagina_handler(pagina_id,handler_id,activo,fecha_creacion)
                 VALUES(@paginaSolicitud,@handlerConsultaListas,1,GETDATE());
+
+            UPDATE dbo.seguridad_pagina_handler
+            SET activo=1, fecha_modificacion=GETDATE()
+            WHERE (pagina_id=@paginaListas AND handler_id IN (@handlerListas,@handlerConsultaListas))
+               OR (pagina_id=@paginaSolicitud AND handler_id=@handlerConsultaListas);
         END;
 
         IF OBJECT_ID('dbo.seguridad_rol_pagina','U') IS NOT NULL AND @paginaCatalogos IS NOT NULL AND @paginaListas IS NOT NULL
@@ -192,6 +197,15 @@ BEGIN TRY
                 SELECT 1 FROM dbo.seguridad_rol_pagina x
                 WHERE x.rol_id=rp.rol_id AND x.pagina_id=@paginaListas
               );
+
+            UPDATE destino
+            SET destino.puede_ver=1
+            FROM dbo.seguridad_rol_pagina destino
+            INNER JOIN dbo.seguridad_rol_pagina origen
+                ON origen.rol_id=destino.rol_id
+               AND origen.pagina_id=@paginaCatalogos
+               AND origen.puede_ver=1
+            WHERE destino.pagina_id=@paginaListas;
         END;
     END;
 
