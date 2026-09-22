@@ -160,7 +160,8 @@ Los handlers reciben una acción por request y devuelven datos/JSON según el ca
 | `clientes_handler.ashx` | `crear`, `actualizar`, `buscar`, `obtener`, `ping` |
 | `contacto_solicitud_handler.ashx` | crear/obtener contacto; altas y actualización de teléfonos, correos y domicilios; selección de principal y activación/desactivación |
 | `handler_alertas_pld.ashx` | catálogos de reglas/motivos/categorías, bandeja, obtener, bitácora, generación manual/automática, evaluación de pagos/perfil transaccional, investigación, cambio de estatus y asignación |
-| `handler_listas_pld.ashx` | `catalogos`, `cargas`, `importar`, `activar`, `buscar` |
+| `handler_listas_pld.ashx` | administración: `catalogos`, `cargas`, `importar`, `activar` |
+| `handler_consulta_listas_pld.ashx` | consulta exacta auditada: `buscar` |
 | `handler_pagos_credito.ashx` | `consultar`, `obtener`, `catalogos`, `buscar_referencias`, `guardar_aplicar`, `cancelar` |
 | `handler_credito_revolvente.ashx` | `resumen`, `configurar_linea`, `listar_disposiciones`, `crear_disposicion`, `reversar_disposicion`, `historial` |
 | `producto_financiero_handler.ashx` | `list`, `get`, `create`, `update`, `delete` y administración de periodos |
@@ -250,6 +251,7 @@ El módulo `Secure/listas_pld.aspx` permite administrar listas manuales PLD/PEP:
 - activación explícita de una versión vigente por lista;
 - SHA-256 del archivo para evitar cargas duplicadas;
 - consulta exacta normalizada por nombre, RFC o CURP;
+- separación de handlers: administración vs consulta de solo lectura;
 - auditoría de consultas y coincidencias;
 - consulta desde la identidad del cliente.
 
