@@ -181,8 +181,10 @@ Public Class catalogos_handler : Implements IHttpHandler
 
             ' Página (nivel usa columna computada nivel_riesgo_final)
             Dim sql As String =
-                "SELECT pf.id, pf.descripcion_larga, pf.impacto, pf.probabilidad, pf.nivel_riesgo_final AS nivel " &
-                "FROM dbo.catalogo_producto_financiero pf " & whereSql & "
+                "SELECT pf.id, pf.descripcion_larga, pf.impacto, pf.probabilidad, pf.nivel_riesgo_final AS nivel, " &
+                "       pf.tipo_credito_id, cc.nombre_credito AS tipo_credito, ISNULL(cc.es_revolvente,0) AS es_revolvente " &
+                "FROM dbo.catalogo_producto_financiero pf " &
+                "LEFT JOIN dbo.catalogo_creditos cc ON cc.id = pf.tipo_credito_id " & whereSql & "
                  ORDER BY pf.id
                  OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;"
 
@@ -199,6 +201,9 @@ Public Class catalogos_handler : Implements IHttpHandler
                         rows.Add(New With {
                             .id = id,
                             .descripcion = desc,
+                            .tipo_credito_id = If(rd.IsDBNull(rd.GetOrdinal("tipo_credito_id")), CType(Nothing, Object), rd("tipo_credito_id")),
+                            .tipo_credito = If(rd.IsDBNull(rd.GetOrdinal("tipo_credito")), "", Convert.ToString(rd("tipo_credito"))),
+                            .es_revolvente = Convert.ToBoolean(rd("es_revolvente")),
                             .impacto = Convert.ToInt32(rd("impacto")),
                             .probabilidad = Convert.ToInt32(rd("probabilidad")),
                             .nivel = Convert.ToDecimal(rd("nivel"), Globalization.CultureInfo.InvariantCulture)
