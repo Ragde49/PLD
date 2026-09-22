@@ -240,6 +240,7 @@
     <Content Include="Handlers\handler_pagos_credito.ashx" />
     <Content Include="Handlers\handler_credito_revolvente.ashx" />
     <Content Include="Handlers\handler_listas_pld.ashx" />
+    <Content Include="Handlers\handler_consulta_listas_pld.ashx" />
     <Content Include="Handlers\handler_config_alertas_destinatarios.ashx" />
     <Content Include="Handlers\handler_prueba_correo_pld.ashx" />
     <None Include="Web.Debug.config">
@@ -371,6 +372,9 @@
     </Compile>
     <Compile Include="Handlers\handler_listas_pld.ashx.vb">
       <DependentUpon>handler_listas_pld.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_consulta_listas_pld.ashx.vb">
+      <DependentUpon>handler_consulta_listas_pld.ashx</DependentUpon>
     </Compile>
     <Compile Include="Handlers\handler_paises.ashx.vb">
       <DependentUpon>handler_paises.ashx</DependentUpon>
