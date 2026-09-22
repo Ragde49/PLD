@@ -90,6 +90,7 @@ Cerrar huecos técnicos entre el módulo revolvente y los flujos existentes sin 
 
 ## 3. Fase 2 — Endurecimiento operativo
 
+**Estado:** COMPLETADO — 2026-09-22  
 **Clasificación:** BLOQUEA RC PARA QA  
 **Dependencia de reglas nuevas:** NO, salvo casos contractuales no definidos que deben quedar excluidos
 
@@ -128,7 +129,33 @@ Dejar estable el flujo operativo de línea → disposición → pago → disponi
 5. Revisar precisión decimal y redondeo de los saldos derivados.
 6. Verificar regresión del crédito simple.
 
+### Resultado
+
+- [x] Primera y múltiples disposiciones validadas.
+- [x] Disposición igual al disponible permitida.
+- [x] Sobregiro bloqueado bajo transacción serializable.
+- [x] Disposición fuera de vigencia bloqueada.
+- [x] Línea sin límite/vigencia bloqueada.
+- [x] Línea no finalizada/inactiva bloqueada.
+- [x] Reversa exige motivo.
+- [x] Reversa bloqueada cuando hay movimientos posteriores incompatibles.
+- [x] Reversa bloqueada si dejaría saldo histórico negativo.
+- [x] Cambio de vigencia bloqueado si deja disposiciones aplicadas fuera del periodo.
+- [x] Pago a capital validado contra monto del pago, saldo actual y saldo histórico en fecha.
+- [x] Pago con capital 0 permitido; no se inventó prelación financiera.
+- [x] Componentes monetarios negativos bloqueados.
+- [x] Capital revolvente en moneda distinta al crédito bloqueado mientras no exista regla de conversión aprobada.
+- [x] Saldo cero de línea revolvente no se interpreta como liquidación contractual.
+- [x] Cancelación exige motivo y mantiene auditoría.
+- [x] Cancelación bloqueada cuando dejaría la línea fuera de límites en cualquier punto de la historia.
+- [x] Saldos posteriores a pago/cancelación devueltos por servidor.
+- [x] Listado e historial del handler revolvente validan que la solicitud realmente sea revolvente.
+- [x] Importes de principal normalizados a 2 decimales.
+- [x] Crédito simple conserva su rama de cálculo y comportamiento existente.
+
 ### Criterio de salida
+
+**CUMPLIDO por revisión estática.**
 
 Para una línea dada:
 
@@ -136,7 +163,9 @@ Para una línea dada:
 
 `disponible = límite autorizado - saldo_utilizado`
 
-y ambos valores coinciden en todos los módulos.
+La integridad se valida además sobre la secuencia histórica de movimientos para impedir saldos negativos o sobregiros intermedios.
+
+La compilación y ejecución contra SQL Server siguen reservadas para la preparación de RC/QA porque el repositorio no dispone de CI ni de una instancia SQL accesible desde este conector.
 
 ---
 
