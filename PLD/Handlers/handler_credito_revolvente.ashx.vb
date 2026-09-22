@@ -114,6 +114,10 @@ Public Class handler_credito_revolvente
         Return valor.Trim()
     End Function
 
+    Private Function Money2(ByVal valor As Decimal) As Decimal
+        Return Math.Round(valor, 2, MidpointRounding.AwayFromZero)
+    End Function
+
     Private Function TableToList(ByVal dt As DataTable) As List(Of Dictionary(Of String, Object))
         Dim lista As New List(Of Dictionary(Of String, Object))()
         For Each row As DataRow In dt.Rows
@@ -204,9 +208,11 @@ Public Class handler_credito_revolvente
         End Using
 
         Dim r As New Dictionary(Of String, Decimal)()
+        capitalDispuesto = Money2(capitalDispuesto)
+        capitalAmortizado = Money2(capitalAmortizado)
         r("capital_dispuesto") = capitalDispuesto
         r("capital_amortizado") = capitalAmortizado
-        r("saldo_utilizado") = capitalDispuesto - capitalAmortizado
+        r("saldo_utilizado") = Money2(capitalDispuesto - capitalAmortizado)
         Return r
     End Function
 
@@ -242,7 +248,16 @@ Public Class handler_credito_revolvente
             If Not cab.IsNull("monto_autorizado") Then limite = Convert.ToDecimal(cab("monto_autorizado"))
 
             Dim disponible As Decimal? = Nothing
-            If limite.HasValue Then disponible = limite.Value - saldos("saldo_utilizado")
+            If limite.HasValue Then disponible = Money2(limite.Value - saldos("saldo_utilizado"))
+
+            Dim integridadOk As Boolean = saldos("saldo_utilizado") >= 0D
+            Dim integridadMensaje As String = ""
+            If saldos("saldo_utilizado") < 0D Then
+                integridadMensaje = "El capital amortizado excede el capital dispuesto."
+            ElseIf limite.HasValue AndAlso saldos("saldo_utilizado") > limite.Value Then
+                integridadOk = False
+                integridadMensaje = "El saldo utilizado excede el límite autorizado."
+            End If
 
             respuesta("ok") = True
             respuesta("data") = New Dictionary(Of String, Object) From {
@@ -264,7 +279,9 @@ Public Class handler_credito_revolvente
                 {"capital_dispuesto", saldos("capital_dispuesto")},
                 {"capital_amortizado", saldos("capital_amortizado")},
                 {"saldo_utilizado", saldos("saldo_utilizado")},
-                {"disponible", If(disponible.HasValue, CType(disponible.Value, Object), Nothing)}
+                {"disponible", If(disponible.HasValue, CType(disponible.Value, Object), Nothing)},
+                {"integridad_ok", integridadOk},
+                {"integridad_mensaje", integridadMensaje}
             }
         End Using
 
@@ -274,7 +291,7 @@ Public Class handler_credito_revolvente
     Private Function ConfigurarLinea(ByVal context As HttpContext) As Dictionary(Of String, Object)
         Dim respuesta As New Dictionary(Of String, Object)()
         Dim solicitudId As Integer = ToInt(Param(context, "solicitud_id"), 0)
-        Dim montoAutorizado As Decimal = ToDec(Param(context, "monto_autorizado"), 0D)
+        Dim montoAutorizado As Decimal = Money2(ToDec(Param(context, "monto_autorizado"), 0D))
         Dim fechaInicio = ToDateNullable(Param(context, "fecha_vigencia_inicio"))
         Dim fechaFin = ToDateNullable(Param(context, "fecha_vigencia_fin"))
 
@@ -393,7 +410,7 @@ Public Class handler_credito_revolvente
     Private Function CrearDisposicion(ByVal context As HttpContext) As Dictionary(Of String, Object)
         Dim respuesta As New Dictionary(Of String, Object)()
         Dim solicitudId As Integer = ToInt(Param(context, "solicitud_id"), 0)
-        Dim monto As Decimal = ToDec(Param(context, "monto"), 0D)
+        Dim monto As Decimal = Money2(ToDec(Param(context, "monto"), 0D))
         Dim fecha = ToDateNullable(Param(context, "fecha_disposicion"))
         Dim referencia As String = Param(context, "referencia").Trim()
         Dim observaciones As String = Param(context, "observaciones").Trim()
@@ -447,9 +464,17 @@ Public Class handler_credito_revolvente
                         Return respuesta
                     End If
 
-                    Dim limite As Decimal = Convert.ToDecimal(cab("monto_autorizado"), CultureInfo.InvariantCulture)
+                    Dim limite As Decimal = Money2(Convert.ToDecimal(cab("monto_autorizado"), CultureInfo.InvariantCulture))
                     Dim saldos = ObtenerSaldos(cn, tr, solicitudId, True)
-                    Dim disponible As Decimal = limite - saldos("saldo_utilizado")
+
+                    If saldos("saldo_utilizado") < 0D Then
+                        tr.Rollback()
+                        respuesta("ok") = False
+                        respuesta("mensaje") = "La línea presenta capital amortizado mayor al capital dispuesto. Debe corregirse antes de disponer."
+                        Return respuesta
+                    End If
+
+                    Dim disponible As Decimal = Money2(limite - saldos("saldo_utilizado"))
 
                     If disponible < 0D Then
                         tr.Rollback()
@@ -491,9 +516,13 @@ Public Class handler_credito_revolvente
 
                     tr.Commit()
                     respuesta("ok") = True
+                    Dim saldoDespues As Decimal = Money2(saldos("saldo_utilizado") + monto)
+                    Dim disponibleDespues As Decimal = Money2(limite - saldoDespues)
+
                     respuesta("mensaje") = "Disposición aplicada correctamente."
                     respuesta("disposicion_id") = nuevoId
-                    respuesta("disponible_despues") = disponible - monto
+                    respuesta("saldo_utilizado_despues") = saldoDespues
+                    respuesta("disponible_despues") = disponibleDespues
                 Catch
                     tr.Rollback()
                     Throw
@@ -526,7 +555,7 @@ Public Class handler_credito_revolvente
                 Try
                     Dim dt = QueryTable(
                         cn, tr,
-                        "SELECT TOP 1 id, solicitud_credito_id, fecha_disposicion, estatus, activo " &
+                        "SELECT TOP 1 id, solicitud_credito_id, fecha_disposicion, monto, estatus, activo " &
                         "FROM dbo.credito_disposiciones WITH (UPDLOCK, HOLDLOCK) WHERE id=@id;",
                         New List(Of SqlParameter) From {
                             New SqlParameter("@id", SqlDbType.Int) With {.Value = disposicionId}
@@ -550,6 +579,16 @@ Public Class handler_credito_revolvente
 
                     Dim solicitudId As Integer = Convert.ToInt32(row("solicitud_credito_id"))
                     Dim fechaDisp As DateTime = Convert.ToDateTime(row("fecha_disposicion"), CultureInfo.InvariantCulture)
+                    Dim montoDisposicion As Decimal = Money2(Convert.ToDecimal(row("monto"), CultureInfo.InvariantCulture))
+                    Dim saldosAntes = ObtenerSaldos(cn, tr, solicitudId, True)
+                    Dim saldoDespuesReversa As Decimal = Money2(saldosAntes("saldo_utilizado") - montoDisposicion)
+
+                    If saldoDespuesReversa < 0D Then
+                        tr.Rollback()
+                        respuesta("ok") = False
+                        respuesta("mensaje") = "No se puede reversar porque el capital amortizado depende de esta disposición y el saldo quedaría negativo."
+                        Return respuesta
+                    End If
 
                     Dim posteriores As Integer = 0
                     Using cmd As New SqlCommand(
@@ -585,9 +624,17 @@ Public Class handler_credito_revolvente
                         cmd.ExecuteNonQuery()
                     End Using
 
+                    Dim cab As DataRow = ObtenerCabecera(cn, tr, solicitudId, False)
+                    Dim disponibleDespues As Object = Nothing
+                    If cab IsNot Nothing AndAlso Not cab.IsNull("monto_autorizado") Then
+                        disponibleDespues = Money2(Convert.ToDecimal(cab("monto_autorizado"), CultureInfo.InvariantCulture) - saldoDespuesReversa)
+                    End If
+
                     tr.Commit()
                     respuesta("ok") = True
                     respuesta("mensaje") = "Disposición reversada correctamente."
+                    respuesta("saldo_utilizado_despues") = saldoDespuesReversa
+                    respuesta("disponible_despues") = disponibleDespues
                 Catch
                     tr.Rollback()
                     Throw
