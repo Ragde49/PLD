@@ -162,7 +162,8 @@ Public Class handler_credito_revolvente
             " pf.descripcion_larga AS producto, pf.tipo_credito_id, " &
             " cc.nombre_credito AS tipo_credito, ISNULL(cc.es_revolvente,0) AS es_revolvente, " &
             " LTRIM(RTRIM(REPLACE(REPLACE(CONCAT(ISNULL(c.primer_nombre,''),' ',ISNULL(c.segundo_nombre,''),' ',ISNULL(c.apellido_paterno,''),' ',ISNULL(c.apellido_materno,'')),'  ',' '),'  ',' '))) AS cliente_nombre, " &
-            " c.rfc, c.curp, md.moneda, md.clave AS moneda_clave " &
+            " c.rfc, c.curp, c.perfil_pagos_mensuales_esperados, c.perfil_monto_mensual_esperado, " &
+            " md.moneda, md.clave AS moneda_clave " &
             "FROM dbo.solicitud_credito sc" & hint & " " &
             "INNER JOIN dbo.catalogo_producto_financiero pf ON pf.id = sc.producto_financiero_id " &
             "INNER JOIN dbo.catalogo_creditos cc ON cc.id = pf.tipo_credito_id " &
@@ -297,6 +298,21 @@ Public Class handler_credito_revolvente
                 integridadMensaje = "El saldo utilizado excede el límite autorizado."
             End If
 
+            Dim perfilReal As DataRow = Nothing
+            Dim clienteIdPerfil As Integer = ToInt(cab("cliente_id"), 0)
+            If clienteIdPerfil > 0 Then
+                Dim dtPerfil As DataTable = QueryTable(
+                    cn,
+                    Nothing,
+                    "SELECT TOP 1 * FROM dbo.vw_cliente_perfil_transaccional_mensual " &
+                    "WHERE cliente_id=@cliente_id AND anio=YEAR(GETDATE()) AND mes=MONTH(GETDATE());",
+                    New List(Of SqlParameter) From {
+                        New SqlParameter("@cliente_id", SqlDbType.Int) With {.Value = clienteIdPerfil}
+                    }
+                )
+                If dtPerfil.Rows.Count > 0 Then perfilReal = dtPerfil.Rows(0)
+            End If
+
             respuesta("ok") = True
             respuesta("data") = New Dictionary(Of String, Object) From {
                 {"solicitud_id", cab("id")},
@@ -304,6 +320,12 @@ Public Class handler_credito_revolvente
                 {"cliente", If(cab.IsNull("cliente_nombre"), Nothing, cab("cliente_nombre"))},
                 {"rfc", If(cab.IsNull("rfc"), Nothing, cab("rfc"))},
                 {"curp", If(cab.IsNull("curp"), Nothing, cab("curp"))},
+                {"perfil_pagos_mensuales_esperados", If(cab.IsNull("perfil_pagos_mensuales_esperados"), Nothing, cab("perfil_pagos_mensuales_esperados"))},
+                {"perfil_monto_mensual_esperado", If(cab.IsNull("perfil_monto_mensual_esperado"), Nothing, cab("perfil_monto_mensual_esperado"))},
+                {"perfil_pagos_realizados_mes", If(perfilReal Is Nothing OrElse perfilReal.IsNull("pagos_realizados"), Nothing, perfilReal("pagos_realizados"))},
+                {"perfil_monto_pagado_mes", If(perfilReal Is Nothing OrElse perfilReal.IsNull("monto_pagado"), Nothing, perfilReal("monto_pagado"))},
+                {"perfil_desviacion_pagos_pct", If(perfilReal Is Nothing OrElse perfilReal.IsNull("desviacion_pagos_pct"), Nothing, perfilReal("desviacion_pagos_pct"))},
+                {"perfil_desviacion_monto_pct", If(perfilReal Is Nothing OrElse perfilReal.IsNull("desviacion_monto_pct"), Nothing, perfilReal("desviacion_monto_pct"))},
                 {"producto", If(cab.IsNull("producto"), Nothing, cab("producto"))},
                 {"tipo_credito", If(cab.IsNull("tipo_credito"), Nothing, cab("tipo_credito"))},
                 {"moneda_id", If(cab.IsNull("moneda_id"), Nothing, cab("moneda_id"))},
