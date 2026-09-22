@@ -6,6 +6,32 @@ Registro funcional y técnico de cambios relevantes del repositorio.
 
 ---
 
+## 2026-09-22 — Cierre Fase 2 de crédito revolvente
+
+**Autor/agente:** ChatGPT / Bill  
+**Resumen:** Se cerró el endurecimiento operativo del crédito revolvente. Se reforzó la integridad de disposiciones, reversas, pagos, cancelaciones y cambios de vigencia; además se validó la secuencia histórica completa para impedir saldos negativos o sobregiros intermedios cuando se capturan movimientos con fechas anteriores.
+
+**Archivos principales:**
+- `PLD/Handlers/handler_credito_revolvente.ashx.vb`
+- `PLD/Handlers/handler_pagos_credito.ashx.vb`
+- `PLD/Secure/pagos_credito.aspx`
+- `README.md`
+- `AGENTS.md`
+- `cambios_codex/2026-09-22_002_plan_revolvente_hasta_rc_qa.md`
+- `BITACORA_CAMBIOS.md`
+
+**Base de datos / SQL:** Sin cambios de esquema y sin nueva migración. Se reutilizan `credito_disposiciones`, `pagos_credito` y `vw_credito_revolvente_saldo`.
+
+**Estructura de BD actualizada:** No aplica; no cambió el esquema documentado.
+
+**README actualizado:** Sí.
+
+**Validación:** Revisión estática de reglas server-side y UI, transacciones serializables, redondeo a 2 decimales del principal, validación de saldo actual e histórico, control de moneda, reversas/cancelaciones y separación de la rama de crédito simple. No se ejecutó compilación de Visual Studio ni SQL Server porque el repositorio no dispone de workflow CI ni de una instancia SQL accesible desde el conector GitHub.
+
+**Pendientes:** Fase 3 está bloqueada por reglas financieras aún no confirmadas. Fases 4, 5 y 6 dependen de insumos PLD/formato/layout. Fase 7 será preparación de RC para QA una vez terminado el alcance desarrollable.
+
+---
+
 ## 2026-09-22 — Cierre Fase 1 de crédito revolvente
 
 **Autor/agente:** ChatGPT / Bill  
