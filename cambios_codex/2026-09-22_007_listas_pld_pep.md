@@ -1,6 +1,6 @@
 # Listas PLD / PEP — base técnica no bloqueada
 
-**Estado:** EN_PROGRESO  
+**Estado:** COMPLETADO  
 **Fecha:** 2026-09-22
 
 ## Objetivo
@@ -30,3 +30,32 @@ Implementar la administración y consulta manual de listas PLD/PEP con trazabili
 
 ## SQL
 PLD/SQL/20260922_004_listas_pld.sql
+
+
+## Resultado
+
+Implementado:
+
+- catálogo de listas con `BLOQUEADAS` y `PEP`;
+- histórico de cargas/versiones;
+- activación explícita de una versión vigente;
+- carga `.xlsx` y `.csv`;
+- hash SHA-256 para detectar archivo duplicado;
+- encabezados NAME/NOMBRE/NOMBRE COMPLETO, RFC y CURP;
+- búsqueda exacta normalizada;
+- auditoría de consultas y resultados;
+- pantalla de administración/consulta;
+- consulta desde la identidad del cliente;
+- seguridad página-handler;
+- enlace desde Catálogos;
+- proyecto y documentación actualizados.
+
+Pendiente únicamente por definición del cliente:
+
+- similitud/fonética;
+- porcentaje de coincidencia;
+- tratamiento de homónimos;
+- bloqueo/autorización automática;
+- proveedor externo.
+
+No se implementó ninguna de esas reglas por inferencia.
