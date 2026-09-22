@@ -31,6 +31,9 @@ Acceso principal desde código:
 2. `20260513_seguridad_pagina_handler.sql`
 3. `20260922_001_credito_revolvente.sql`
 4. `20260922_002_perfil_transaccional_cliente.sql`
+5. `20260922_004_listas_pld.sql`
+6. `20260922_005_alertas_investigacion.sql`
+7. `20260922_006_preflight_integral_pld.sql` (solo validación)
 
 Estos scripts documentan principalmente la estructura de seguridad y no representan por sí solos la creación completa de la base de datos PLD.
 
@@ -76,6 +79,12 @@ Los siguientes objetos aparecen utilizados directamente por handlers o módulos 
 - `vw_pld_factores`
 - `alertas_pld`
 - `alertas_pld_bitacora`
+- `alertas_pld_investigacion`
+- `catalogo_listas_pld`
+- `listas_pld_cargas`
+- `listas_pld_personas`
+- `listas_pld_consultas`
+- `listas_pld_consulta_resultados`
 - `catalogo_alerta_categoria`
 - `catalogo_alerta_motivo`
 - `catalogo_alerta_regla`
@@ -169,3 +178,38 @@ Nueva vista `vw_cliente_perfil_transaccional_mensual`:
 - expone cantidad y monto reales;
 - calcula desviaciones absolutas y porcentuales;
 - no contiene umbrales ni clasificación PLD.
+
+
+### 2026-09-22 — Listas PLD / PEP
+
+Script: `20260922_004_listas_pld.sql`
+
+Nuevos objetos:
+
+- `catalogo_listas_pld`: catálogo de tipos de lista. Se crean las claves confirmadas `BLOQUEADAS` y `PEP`.
+- `listas_pld_cargas`: histórico de archivos/versiones, fuente, fecha de recepción, SHA-256, conteo y bandera `vigente`.
+- `listas_pld_personas`: registros asociados a cada carga con nombre/RFC/CURP y valores normalizados.
+- `listas_pld_consultas`: auditoría de cada consulta.
+- `listas_pld_consulta_resultados`: detalle de coincidencias devueltas.
+- Índices por lista/versión y por nombre, RFC y CURP normalizados.
+- Registro de seguridad de `/secure/listas_pld.aspx` y `/handlers/handler_listas_pld.ashx`.
+
+La búsqueda implementada es exacta sobre valores normalizados. No existe porcentaje de similitud, búsqueda fonética ni bloqueo automático.
+
+### 2026-09-22 — Investigación de alertas PLD
+
+Script: `20260922_005_alertas_investigacion.sql`
+
+Nueva tabla `alertas_pld_investigacion`:
+
+- `id BIGINT IDENTITY` PK.
+- `alerta_id INT NOT NULL` FK a `alertas_pld(id)`.
+- `resultado VARCHAR(30) NOT NULL`, limitado a `EN_ANALISIS`, `JUSTIFICADA` o `NO_JUSTIFICADA`.
+- `comentario NVARCHAR(MAX) NOT NULL`.
+- `categoria_alerta NVARCHAR(150) NULL`.
+- `origen_evento NVARCHAR(100) NULL`.
+- `usuario NVARCHAR(100) NOT NULL`.
+- `fecha_investigacion DATETIME2(0) NOT NULL`.
+- Índice por alerta y fecha.
+
+El resultado de investigación no modifica automáticamente `alertas_pld.estatus_alerta`; el estatus operativo y la conclusión de investigación permanecen desacoplados.
