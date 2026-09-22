@@ -171,6 +171,7 @@ La compilación y ejecución contra SQL Server siguen reservadas para la prepara
 
 ## 4. Fase 3 — Reglas financieras del revolvente
 
+**Estado:** BLOQUEADO — esperando definiciones funcionales de 2026-09-22  
 **Clasificación:** PENDIENTE POR REGLAS DE NEGOCIO  
 **Bloqueo:** BLOQUEA UNA RC FINANCIERA COMPLETA, pero no una RC técnica/operativa si QA acepta explícitamente el alcance excluido.
 
