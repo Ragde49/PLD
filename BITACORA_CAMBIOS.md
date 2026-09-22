@@ -6,6 +6,35 @@ Registro funcional y técnico de cambios relevantes del repositorio.
 
 ---
 
+## 2026-09-22 — Cierre Fase 1 de crédito revolvente
+
+**Autor/agente:** ChatGPT / Bill  
+**Resumen:** Se cerró la integración técnica de Fase 1 del crédito revolvente. La captura identifica productos revolventes, bloquea la amortización fija CONDUSEF en frontend y backend, exige solicitud FINALIZADA para configurar línea/disponer y conecta la navegación Consulta PF → Revolvente → Pagos sin alterar el flujo de crédito simple.
+
+**Archivos principales:**
+- `PLD/Handlers/catalogos_handler.ashx.vb`
+- `PLD/Handlers/solicitud_credito_handler.ashx.vb`
+- `PLD/Secure/captura_solicitud_credito.aspx`
+- `PLD/Handlers/handler_credito_revolvente.ashx.vb`
+- `PLD/Secure/credito_revolvente.aspx`
+- `PLD/Secure/pagos_credito.aspx`
+- `PLD/SQL/20260922_001_credito_revolvente.sql`
+- `README.md`
+- `cambios_codex/2026-09-22_001_diseno_credito_revolvente.md`
+- `cambios_codex/2026-09-22_002_plan_revolvente_hasta_rc_qa.md`
+
+**Base de datos / SQL:** No se agregaron nuevos objetos respecto de la migración ya documentada. Se endureció la reejecución del registro página-handler para evitar inconsistencias si existieran relaciones inactivas previas. La migración aún debe aplicarse en un ambiente de pruebas.
+
+**Estructura de BD actualizada:** No aplica; no cambió la estructura ya documentada.
+
+**README actualizado:** Sí.
+
+**Validación:** Revisión estática de contratos frontend/backend, diferenciación SIMPLE/REVOLVENTE, bloqueo server-side de amortización fija, requisito FINALIZADA, navegación y reejecución razonable del SQL. No se ejecutó compilación ni SQL Server desde el conector GitHub.
+
+**Pendientes:** Fase 2 — endurecimiento operativo y regresión. Fase 3 continúa bloqueada por reglas financieras no confirmadas.
+
+---
+
 ## 2026-09-22 — Roadmap de crédito revolvente hasta RC para QA
 
 **Autor/agente:** ChatGPT / Bill  
