@@ -6,6 +6,34 @@ Registro funcional y técnico de cambios relevantes del repositorio.
 
 ---
 
+## 2026-09-22 — Cierre Fase 7: preparación técnica RC-QA de crédito revolvente
+
+**Autor/agente:** ChatGPT / Bill  
+**Resumen:** Se cerró la preparación técnica del repositorio para una versión candidata operativa de crédito revolvente. Se agregó preflight SQL, checklist reproducible de instalación/QA, pruebas de humo, regresión de crédito simple, seguridad, trazabilidad y exclusiones conocidas.
+
+**Archivos principales:**
+- `PLD/SQL/20260922_003_preflight_rc_revolvente.sql`
+- `PLD/Docs md/RC_QA_CREDITO_REVOLVENTE.md`
+- `cambios_codex/2026-09-22_005_fase7_preparacion_rc_qa.md`
+- `cambios_codex/2026-09-22_002_plan_revolvente_hasta_rc_qa.md`
+- `PLD/PLD.vbproj`
+- `README.md`
+- `BITACORA_CAMBIOS.md`
+
+**Base de datos / SQL:** Se agregó un script de preflight de solo validación; no crea ni modifica estructura. Las migraciones funcionales siguen siendo 001 y 002.
+
+**Estructura de BD actualizada:** No aplica; el preflight no cambia esquema.
+
+**README actualizado:** Sí.
+
+**Validación realizada:** Revisión estática del proyecto, scripts, orden de instalación, seguridad esperada y búsqueda en GitHub de patrones de secretos (connectionString, Password=, Pwd=, clave privada, api_key y secret), sin hallazgos versionados en dichas búsquedas. Se confirmó que Web.config no está disponible como archivo versionado.
+
+**Validación externa pendiente:** No se ejecutó compilación Debug/Release, migraciones en SQL Server ni smoke/regresión/seguridad en ambiente real porque el conector GitHub no provee Visual Studio ni acceso a la instancia SQL.
+
+**Estado:** Fase 7 COMPLETADA como preparación técnica. Decisión GO para QA: PENDIENTE de gates externos.
+
+---
+
 ## 2026-09-22 — Cierre Fase 4: perfil transaccional y PLD
 
 **Autor/agente:** ChatGPT / Bill  
