@@ -6,6 +6,34 @@ Registro funcional y técnico de cambios relevantes del repositorio.
 
 ---
 
+## 2026-09-22 — Implementación de crédito revolvente (Fases 1 y 2)
+
+**Autor/agente:** ChatGPT / Bill  
+**Resumen:** Se implementó la estructura y operación básica de crédito revolvente conservando el flujo de crédito simple. Se agregó configuración de tipo revolvente, límite/vigencia, disposiciones múltiples, cálculo derivado de utilizado/disponible, historial operativo e integración con Consulta PF y pagos.
+
+**Archivos principales:**
+- `PLD/SQL/20260922_001_credito_revolvente.sql`
+- `PLD/Handlers/handler_credito_revolvente.ashx(.vb)`
+- `PLD/Secure/credito_revolvente.aspx(.vb/.designer.vb)`
+- `PLD/Handlers/handler_pagos_credito.ashx.vb`
+- `PLD/Handlers/catalogo_creditos_pld.ashx.vb`
+- `PLD/Secure/catalogo_creditos.aspx`
+- `PLD/Handlers/solicitudPFHandler.ashx.vb`
+- `PLD/Secure/solicitud_pf.aspx`
+- `PLD/PLD.vbproj`
+
+**Base de datos / SQL:** Nueva migración incremental. No se ejecutó contra producción desde este entorno.
+
+**Estructura de BD actualizada:** Sí.
+
+**README actualizado:** Sí.
+
+**Validación:** Revisión estática de contratos frontend/backend, SQL parametrizado, seguridad página-handler, concurrencia de disposiciones/pagos y referencias del proyecto. No fue posible ejecutar Visual Studio/MSBuild ni una instancia SQL Server desde el conector GitHub.
+
+**Pendientes:** Intereses, pago mínimo, prelación, mora y estado de cuenta contractual siguen pendientes de definición funcional.
+
+---
+
 ## 2026-09-22 — Diseño técnico-funcional de crédito revolvente
 
 **Autor/agente:** ChatGPT / Bill  
