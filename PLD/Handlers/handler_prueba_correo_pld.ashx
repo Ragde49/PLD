@@ -1,0 +1,1 @@
+﻿<%@ WebHandler Language="VB" CodeBehind="handler_prueba_correo_pld.ashx.vb" Class="PLD.handler_prueba_correo_pld" %>

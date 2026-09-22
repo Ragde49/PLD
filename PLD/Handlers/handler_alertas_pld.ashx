@@ -1,0 +1,1 @@
+﻿<%@ WebHandler Language="VB" CodeBehind="handler_alertas_pld.ashx.vb" Class="PLD.handler_alertas_pld" %>

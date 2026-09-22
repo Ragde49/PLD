@@ -1,0 +1,40 @@
+.git-Azure-Backup/
+.git-backup/
+
+.vs/
+[Bb]in/
+[Oo]bj/
+packages/
+node_modules/
+publish/
+TestResults/
+
+*.user
+*.suo
+*.cache
+*.log
+*.tmp
+
+# Configuracion local
+Web.config
+.env
+.env.*
+
+# Certificados y llaves privadas
+*.key
+*.pfx
+*.p12
+*.pem
+
+# Bases y respaldos
+*.bak
+*.mdf
+*.ldf
+
+# Comprimidos
+*.zip
+*.rar
+*.7z
+
+Thumbs.db
+.DS_Store

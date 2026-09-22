@@ -1,0 +1,823 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>
+    </SchemaVersion>
+    <ProjectGuid>{CD8E53D2-B177-494B-AE08-1CEEF98E43D7}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>PLD</RootNamespace>
+    <AssemblyName>PLD</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <MyType>Custom</MyType>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\</OutputPath>
+    <DocumentationFile>WebForms_Basic.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DocumentationFile>WebForms_Basic.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="..\AGENTE.md">
+      <Link>AGENTE.md</Link>
+    </Content>
+    <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.2.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Web.Optimization, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Web.Providers">
+      <HintPath>..\packages\Microsoft.AspNet.Providers.Core.2.0.0\lib\net40\System.Web.Providers.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Xml.Linq" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Collections.Specialized" />
+    <Import Include="System.Configuration" />
+    <Import Include="System.Text" />
+    <Import Include="System.Text.RegularExpressions" />
+    <Import Include="System.Web" />
+    <Import Include="System.Web.Caching" />
+    <Import Include="System.Web.Routing" />
+    <Import Include="System.Web.SessionState" />
+    <Import Include="System.Web.Security" />
+    <Import Include="System.Web.Profile" />
+    <Import Include="System.Web.UI" />
+    <Import Include="System.Web.UI.WebControls" />
+    <Import Include="System.Web.UI.WebControls.WebParts" />
+    <Import Include="System.Web.UI.HtmlControls" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="assets\css\app.min.css" />
+    <Content Include="assets\images\favicon.ico" />
+    <Content Include="assets\images\logo-dark.png" />
+    <Content Include="assets\images\logo-light.png" />
+    <Content Include="assets\images\logo-sm.png" />
+    <Content Include="assets\js\app.min.js" />
+    <Content Include="assets\js\config.js" />
+    <Content Include="assets\js\feather.min.js" />
+    <Content Include="assets\js\jspdf.plugin.autotable.min.js" />
+    <Content Include="assets\js\jspdf.umd.min.js" />
+    <Content Include="assets\js\simplebar.min.js" />
+    <Content Include="CambiarPassword.aspx" />
+    <Content Include="Default.aspx" />
+    <Content Include="favicon.ico" />
+    <Content Include="Global.asax" />
+    <Content Include="Handlers\seguridad_handler.ashx" />
+    <Content Include="Login.aspx" />
+    <Content Include="Logout.aspx" />
+    <Content Include="NoAutorizado.aspx" />
+    <Content Include="Secure\alertas_pld.aspx" />
+    <Content Include="Secure\captura_solicitud_credito.aspx" />
+    <Content Include="Secure\CatalogoNichoMercado.aspx" />
+    <Content Include="Secure\CatalogoProductoFinanciero.aspx" />
+    <Content Include="Secure\catalogos.aspx" />
+    <Content Include="Secure\catalogo_aplicacion_pago.aspx" />
+    <Content Include="Secure\catalogo_canal_pago.aspx" />
+    <Content Include="Secure\catalogo_centro_trabajo.aspx" />
+    <Content Include="Secure\catalogo_colonia.aspx" />
+    <Content Include="Secure\catalogo_creditos.aspx" />
+    <Content Include="Secure\catalogo_destino_recursos.aspx" />
+    <Content Include="Secure\catalogo_empresas.aspx" />
+    <Content Include="Secure\catalogo_estados.aspx" />
+    <Content Include="Secure\catalogo_fondeador.aspx" />
+    <Content Include="Secure\catalogo_giro_negocio.aspx" />
+    <Content Include="Secure\catalogo_instrumento_monetario.aspx" />
+    <Content Include="Secure\catalogo_libor.aspx" />
+    <Content Include="Secure\catalogo_medio_contacto.aspx" />
+    <Content Include="Secure\catalogo_moneda_divisa.aspx" />
+    <Content Include="Secure\catalogo_municipios.aspx" />
+    <Content Include="Secure\catalogo_nacionalidades.aspx" />
+    <Content Include="Secure\catalogo_ocupacion.aspx" />
+    <Content Include="Secure\catalogo_origen_recursos.aspx" />
+    <Content Include="Secure\catalogo_paises.aspx" />
+    <Content Include="Secure\catalogo_promotores.aspx" />
+    <Content Include="Secure\catalogo_propietario_real.aspx" />
+    <Content Include="Secure\catalogo_scoring.aspx" />
+    <Content Include="Secure\catalogo_sepomex.aspx" />
+    <Content Include="Secure\catalogo_tasa_tie.aspx" />
+    <Content Include="Secure\catalogo_tipo_documentos.aspx" />
+    <Content Include="Secure\catalogo_tipo_pago.aspx" />
+    <Content Include="Secure\clasificacion_riesgo.aspx" />
+    <Content Include="Secure\config_alertas_destinatarios.aspx" />
+    <Content Include="Secure\config_puntaje_categoria.aspx" />
+    <Content Include="Secure\pagos_credito.aspx" />
+    <Content Include="Secure\presolicitud_form.aspx" />
+    <Content Include="Secure\seguridad.aspx" />
+    <Content Include="Secure\solicitud_pf.aspx" />
+    <Content Include="SQL\20260513_seguridad.sql" />
+    <Content Include="SQL\20260513_seguridad_pagina_handler.sql" />
+    <Content Include="Web.config" />
+    <Content Include="Handlers\solicitudPFHandler.ashx" />
+    <Content Include="Handlers\handler_fondeador.ashx" />
+    <Content Include="Handlers\catalogo_scoring.ashx" />
+    <Content Include="Handlers\handler_centro_trabajo.ashx" />
+    <Content Include="Handlers\handler_colonia.ashx" />
+    <Content Include="Handlers\importar_sepomex.ashx" />
+    <Content Include="Handlers\catalogo_colonia.ashx" />
+    <Content Include="Handlers\handler_tipo_credito.ashx" />
+    <Content Include="Handlers\scoring_atraso.ashx" />
+    <Content Include="Handlers\scoring_pago.ashx" />
+    <Content Include="Handlers\scoring_circulo.ashx" />
+    <Content Include="Handlers\scoring_monto.ashx" />
+    <Content Include="Handlers\scoring_producto.ashx" />
+    <Content Include="Handlers\handler_catalogo_tipo_documentos.ashx" />
+    <Content Include="Handlers\handler_empresas.ashx" />
+    <Content Include="Handlers\handler_paises.ashx" />
+    <Content Include="packages.config" />
+    <Content Include="Handlers\handler_sepomex.ashx" />
+    <Content Include="Handlers\handler_giro_negocio.ashx" />
+    <Content Include="Handlers\handler_ocupacion.ashx" />
+    <Content Include="Handlers\handler_medios_contacto.ashx" />
+    <Content Include="Handlers\handler_promotores.ashx" />
+    <Content Include="Handlers\handler_sucursales.ashx" />
+    <Content Include="Handlers\handler_nacionalidades.ashx" />
+    <Content Include="Handlers\handler_puntaje_categoria.ashx" />
+    <Content Include="Handlers\handler_peso_cliente_pf.ashx" />
+    <Content Include="Handlers\handler_peso_cliente_pm.ashx" />
+    <Content Include="Handlers\handler_peso_producto.ashx" />
+    <Content Include="Handlers\handler_peso_zona.ashx" />
+    <Content Include="Handlers\handler_peso_general.ashx" />
+    <Content Include="Handlers\handler_peso_alertas.ashx" />
+    <Content Include="Handlers\handler_peso_transacciones.ashx" />
+    <Content Include="Handlers\handler_aplicacion_pago.ashx" />
+    <Content Include="Handlers\catalogo_creditos_pld.ashx" />
+    <Content Include="Handlers\handler_tipo_estado_cuenta.ashx" />
+    <Content Include="Handlers\handler_origen_recursos.ashx" />
+    <Content Include="Handlers\handler_catalogo_moneda_divisa.ashx" />
+    <Content Include="Handlers\handler_tipo_pago.ashx" />
+    <Content Include="Handlers\handler_catalogo_canal_pago.ashx" />
+    <Content Include="Handlers\handler_catalogo_destino_recursos.ashx" />
+    <Content Include="Handlers\producto_financiero_handler.ashx" />
+    <Content Include="Handlers\handler_catalogo_libor.ashx" />
+    <Content Include="Handlers\handler_catalogo_instrumento_monetario.ashx" />
+    <Content Include="Handlers\handler_catalogo_estados.ashx" />
+    <Content Include="Handlers\handler_catalogo_nicho_mercado.ashx" />
+    <Content Include="Handlers\handler_catalogo_tasa_tie.ashx" />
+    <Content Include="Handlers\handler_catalogo_propietario_real.ashx" />
+    <Content Include="Handlers\handler_catalogo_municipios.ashx" />
+    <Content Include="Handlers\calcular_pld.ashx" />
+    <Content Include="Handlers\solicitud_credito_handler.ashx" />
+    <Content Include="Handlers\catalogos_handler.ashx" />
+    <Content Include="Handlers\utilidades.ashx" />
+    <Content Include="Handlers\clientes_handler.ashx" />
+    <Content Include="Handlers\pld_detalle_handler.ashx" />
+    <Content Include="Handlers\contacto_solicitud_handler.ashx" />
+    <Content Include="Handlers\catalogos_identidad_handler.ashx" />
+    <Content Include="Handlers\handler_config_umbrales_pld.ashx" />
+    <Content Include="Handlers\producto_financiero_periodos_handler.ashx" />
+    <Content Include="Handlers\handler_alertas_pld.ashx" />
+    <Content Include="Handlers\handler_pagos_credito.ashx" />
+    <Content Include="Handlers\handler_config_alertas_destinatarios.ashx" />
+    <Content Include="Handlers\handler_prueba_correo_pld.ashx" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CambiarPassword.aspx.designer.vb">
+      <DependentUpon>CambiarPassword.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CambiarPassword.aspx.vb">
+      <DependentUpon>CambiarPassword.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.vb">
+      <SubType>ASPXCodeBehind</SubType>
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Default.aspx.designer.vb">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.vb">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\calcular_pld.ashx.vb">
+      <DependentUpon>calcular_pld.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\catalogos_handler.ashx.vb">
+      <DependentUpon>catalogos_handler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\catalogos_identidad_handler.ashx.vb">
+      <DependentUpon>catalogos_identidad_handler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\catalogo_colonia.ashx.vb">
+      <DependentUpon>catalogo_colonia.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\catalogo_creditos_pld.ashx.vb">
+      <DependentUpon>catalogo_creditos_pld.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\catalogo_scoring.ashx.vb">
+      <DependentUpon>catalogo_scoring.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\clientes_handler.ashx.vb">
+      <DependentUpon>clientes_handler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\contacto_solicitud_handler.ashx.vb">
+      <DependentUpon>contacto_solicitud_handler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_alertas_pld.ashx.vb">
+      <DependentUpon>handler_alertas_pld.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_aplicacion_pago.ashx.vb">
+      <DependentUpon>handler_aplicacion_pago.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_canal_pago.ashx.vb">
+      <DependentUpon>handler_catalogo_canal_pago.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_destino_recursos.ashx.vb">
+      <DependentUpon>handler_catalogo_destino_recursos.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_estados.ashx.vb">
+      <DependentUpon>handler_catalogo_estados.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_instrumento_monetario.ashx.vb">
+      <DependentUpon>handler_catalogo_instrumento_monetario.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_libor.ashx.vb">
+      <DependentUpon>handler_catalogo_libor.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_moneda_divisa.ashx.vb">
+      <DependentUpon>handler_catalogo_moneda_divisa.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_municipios.ashx.vb">
+      <DependentUpon>handler_catalogo_municipios.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_nicho_mercado.ashx.vb">
+      <DependentUpon>handler_catalogo_nicho_mercado.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_propietario_real.ashx.vb">
+      <DependentUpon>handler_catalogo_propietario_real.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_tasa_tie.ashx.vb">
+      <DependentUpon>handler_catalogo_tasa_tie.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_catalogo_tipo_documentos.ashx.vb">
+      <DependentUpon>handler_catalogo_tipo_documentos.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_centro_trabajo.ashx.vb">
+      <DependentUpon>handler_centro_trabajo.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_colonia.ashx.vb">
+      <DependentUpon>handler_colonia.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_config_alertas_destinatarios.ashx.vb">
+      <DependentUpon>handler_config_alertas_destinatarios.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_config_umbrales_pld.ashx.vb">
+      <DependentUpon>handler_config_umbrales_pld.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_empresas.ashx.vb">
+      <DependentUpon>handler_empresas.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_fondeador.ashx.vb">
+      <DependentUpon>handler_fondeador.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_giro_negocio.ashx.vb">
+      <DependentUpon>handler_giro_negocio.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_medios_contacto.ashx.vb">
+      <DependentUpon>handler_medios_contacto.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_nacionalidades.ashx.vb">
+      <DependentUpon>handler_nacionalidades.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_ocupacion.ashx.vb">
+      <DependentUpon>handler_ocupacion.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_origen_recursos.ashx.vb">
+      <DependentUpon>handler_origen_recursos.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_pagos_credito.ashx.vb">
+      <DependentUpon>handler_pagos_credito.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_paises.ashx.vb">
+      <DependentUpon>handler_paises.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_peso_alertas.ashx.vb">
+      <DependentUpon>handler_peso_alertas.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_peso_cliente_pf.ashx.vb">
+      <DependentUpon>handler_peso_cliente_pf.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_peso_cliente_pm.ashx.vb">
+      <DependentUpon>handler_peso_cliente_pm.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_peso_general.ashx.vb">
+      <DependentUpon>handler_peso_general.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_peso_producto.ashx.vb">
+      <DependentUpon>handler_peso_producto.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_peso_transacciones.ashx.vb">
+      <DependentUpon>handler_peso_transacciones.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_peso_zona.ashx.vb">
+      <DependentUpon>handler_peso_zona.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_promotores.ashx.vb">
+      <DependentUpon>handler_promotores.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_prueba_correo_pld.ashx.vb">
+      <DependentUpon>handler_prueba_correo_pld.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_puntaje_categoria.ashx.vb">
+      <DependentUpon>handler_puntaje_categoria.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_sepomex.ashx.vb">
+      <DependentUpon>handler_sepomex.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_sucursales.ashx.vb">
+      <DependentUpon>handler_sucursales.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_tipo_credito.ashx.vb">
+      <DependentUpon>handler_tipo_credito.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_tipo_estado_cuenta.ashx.vb">
+      <DependentUpon>handler_tipo_estado_cuenta.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_tipo_pago.ashx.vb">
+      <DependentUpon>handler_tipo_pago.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\importar_sepomex.ashx.vb">
+      <DependentUpon>importar_sepomex.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\pld_detalle_handler.ashx.vb">
+      <DependentUpon>pld_detalle_handler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\producto_financiero_handler.ashx.vb">
+      <DependentUpon>producto_financiero_handler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\producto_financiero_periodos_handler.ashx.vb">
+      <DependentUpon>producto_financiero_periodos_handler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\scoring_atraso.ashx.vb">
+      <DependentUpon>scoring_atraso.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\scoring_circulo.ashx.vb">
+      <DependentUpon>scoring_circulo.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\scoring_monto.ashx.vb">
+      <DependentUpon>scoring_monto.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\scoring_pago.ashx.vb">
+      <DependentUpon>scoring_pago.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\scoring_producto.ashx.vb">
+      <DependentUpon>scoring_producto.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\seguridad_handler.ashx.vb">
+      <DependentUpon>seguridad_handler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\solicitudPFHandler.ashx.vb">
+      <DependentUpon>solicitudPFHandler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\solicitud_credito_handler.ashx.vb">
+      <DependentUpon>solicitud_credito_handler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\utilidades.ashx.vb">
+      <DependentUpon>utilidades.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.designer.vb">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.vb">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Logout.aspx.vb">
+      <DependentUpon>Logout.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\MyExtensions\MyWebExtension.vb">
+      <VBMyExtensionTemplateID>Microsoft.VisualBasic.Web.MyExtension</VBMyExtensionTemplateID>
+      <VBMyExtensionTemplateVersion>1.0.0.0</VBMyExtensionTemplateVersion>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Secure\alertas_pld.aspx.designer.vb">
+      <DependentUpon>alertas_pld.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\alertas_pld.aspx.vb">
+      <DependentUpon>alertas_pld.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\captura_solicitud_credito.aspx.designer.vb">
+      <DependentUpon>captura_solicitud_credito.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\captura_solicitud_credito.aspx.vb">
+      <DependentUpon>captura_solicitud_credito.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\CatalogoNichoMercado.aspx.designer.vb">
+      <DependentUpon>CatalogoNichoMercado.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\CatalogoNichoMercado.aspx.vb">
+      <DependentUpon>CatalogoNichoMercado.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\CatalogoProductoFinanciero.aspx.designer.vb">
+      <DependentUpon>CatalogoProductoFinanciero.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\CatalogoProductoFinanciero.aspx.vb">
+      <DependentUpon>CatalogoProductoFinanciero.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogos.aspx.designer.vb">
+      <DependentUpon>catalogos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogos.aspx.vb">
+      <DependentUpon>catalogos.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_aplicacion_pago.aspx.designer.vb">
+      <DependentUpon>catalogo_aplicacion_pago.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_aplicacion_pago.aspx.vb">
+      <DependentUpon>catalogo_aplicacion_pago.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_canal_pago.aspx.designer.vb">
+      <DependentUpon>catalogo_canal_pago.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_canal_pago.aspx.vb">
+      <DependentUpon>catalogo_canal_pago.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_centro_trabajo.aspx.designer.vb">
+      <DependentUpon>catalogo_centro_trabajo.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_centro_trabajo.aspx.vb">
+      <DependentUpon>catalogo_centro_trabajo.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_colonia.aspx.designer.vb">
+      <DependentUpon>catalogo_colonia.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_colonia.aspx.vb">
+      <DependentUpon>catalogo_colonia.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_creditos.aspx.designer.vb">
+      <DependentUpon>catalogo_creditos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_creditos.aspx.vb">
+      <DependentUpon>catalogo_creditos.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_destino_recursos.aspx.designer.vb">
+      <DependentUpon>catalogo_destino_recursos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_destino_recursos.aspx.vb">
+      <DependentUpon>catalogo_destino_recursos.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_empresas.aspx.designer.vb">
+      <DependentUpon>catalogo_empresas.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_empresas.aspx.vb">
+      <DependentUpon>catalogo_empresas.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_estados.aspx.designer.vb">
+      <DependentUpon>catalogo_estados.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_estados.aspx.vb">
+      <DependentUpon>catalogo_estados.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_fondeador.aspx.designer.vb">
+      <DependentUpon>catalogo_fondeador.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_fondeador.aspx.vb">
+      <DependentUpon>catalogo_fondeador.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_giro_negocio.aspx.designer.vb">
+      <DependentUpon>catalogo_giro_negocio.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_giro_negocio.aspx.vb">
+      <DependentUpon>catalogo_giro_negocio.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_instrumento_monetario.aspx.designer.vb">
+      <DependentUpon>catalogo_instrumento_monetario.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_instrumento_monetario.aspx.vb">
+      <DependentUpon>catalogo_instrumento_monetario.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_libor.aspx.designer.vb">
+      <DependentUpon>catalogo_libor.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_libor.aspx.vb">
+      <DependentUpon>catalogo_libor.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_medio_contacto.aspx.designer.vb">
+      <DependentUpon>catalogo_medio_contacto.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_medio_contacto.aspx.vb">
+      <DependentUpon>catalogo_medio_contacto.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_moneda_divisa.aspx.designer.vb">
+      <DependentUpon>catalogo_moneda_divisa.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_moneda_divisa.aspx.vb">
+      <DependentUpon>catalogo_moneda_divisa.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_municipios.aspx.designer.vb">
+      <DependentUpon>catalogo_municipios.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_municipios.aspx.vb">
+      <DependentUpon>catalogo_municipios.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_nacionalidades.aspx.designer.vb">
+      <DependentUpon>catalogo_nacionalidades.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_nacionalidades.aspx.vb">
+      <DependentUpon>catalogo_nacionalidades.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_ocupacion.aspx.designer.vb">
+      <DependentUpon>catalogo_ocupacion.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_ocupacion.aspx.vb">
+      <DependentUpon>catalogo_ocupacion.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_origen_recursos.aspx.designer.vb">
+      <DependentUpon>catalogo_origen_recursos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_origen_recursos.aspx.vb">
+      <DependentUpon>catalogo_origen_recursos.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_paises.aspx.designer.vb">
+      <DependentUpon>catalogo_paises.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_paises.aspx.vb">
+      <DependentUpon>catalogo_paises.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_promotores.aspx.designer.vb">
+      <DependentUpon>catalogo_promotores.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_promotores.aspx.vb">
+      <DependentUpon>catalogo_promotores.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_propietario_real.aspx.designer.vb">
+      <DependentUpon>catalogo_propietario_real.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_propietario_real.aspx.vb">
+      <DependentUpon>catalogo_propietario_real.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_scoring.aspx.designer.vb">
+      <DependentUpon>catalogo_scoring.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_scoring.aspx.vb">
+      <DependentUpon>catalogo_scoring.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_sepomex.aspx.designer.vb">
+      <DependentUpon>catalogo_sepomex.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_sepomex.aspx.vb">
+      <DependentUpon>catalogo_sepomex.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_tasa_tie.aspx.designer.vb">
+      <DependentUpon>catalogo_tasa_tie.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_tasa_tie.aspx.vb">
+      <DependentUpon>catalogo_tasa_tie.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_tipo_documentos.aspx.designer.vb">
+      <DependentUpon>catalogo_tipo_documentos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_tipo_documentos.aspx.vb">
+      <DependentUpon>catalogo_tipo_documentos.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\catalogo_tipo_pago.aspx.designer.vb">
+      <DependentUpon>catalogo_tipo_pago.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\catalogo_tipo_pago.aspx.vb">
+      <DependentUpon>catalogo_tipo_pago.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\clasificacion_riesgo.aspx.designer.vb">
+      <DependentUpon>clasificacion_riesgo.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\clasificacion_riesgo.aspx.vb">
+      <DependentUpon>clasificacion_riesgo.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\config_alertas_destinatarios.aspx.designer.vb">
+      <DependentUpon>config_alertas_destinatarios.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\config_alertas_destinatarios.aspx.vb">
+      <DependentUpon>config_alertas_destinatarios.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\config_puntaje_categoria.aspx.designer.vb">
+      <DependentUpon>config_puntaje_categoria.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\config_puntaje_categoria.aspx.vb">
+      <DependentUpon>config_puntaje_categoria.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\pagos_credito.aspx.designer.vb">
+      <DependentUpon>pagos_credito.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\pagos_credito.aspx.vb">
+      <DependentUpon>pagos_credito.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\presolicitud_form.aspx.designer.vb">
+      <DependentUpon>presolicitud_form.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\presolicitud_form.aspx.vb">
+      <DependentUpon>presolicitud_form.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Secure\solicitud_pf.aspx.designer.vb">
+      <DependentUpon>solicitud_pf.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\solicitud_pf.aspx.vb">
+      <DependentUpon>solicitud_pf.aspx</DependentUpon>
+      <SubType>ASPXCodebehind</SubType>
+    </Compile>
+    <Compile Include="Security\SeguridadAuth.vb" />
+    <Compile Include="Security\SeguridadAutorizacion.vb" />
+    <Compile Include="Security\SeguridadMenu.vb" />
+    <Compile Include="Security\SeguridadPassword.vb" />
+    <Compile Include="Security\SeguridadSesion.vb" />
+    <Compile Include="Services\PldEmailService.vb" />
+    <Compile Include="Site.Master.designer.vb">
+      <DependentUpon>Site.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Site.Master.vb">
+      <DependentUpon>Site.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+    <Content Include="Site.Master" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="My Project\PublishProfiles\" />
+    <Folder Include="temp\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionStrict>Off</OptionStrict>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>24564</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:24564/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
