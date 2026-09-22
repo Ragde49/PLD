@@ -1078,13 +1078,18 @@ Public Class handler_alertas_pld
 
         Dim reglas As DataTable = ObtenerReglasActivasPorTipo(cn, tr, "PERFIL_TRANSACCIONAL")
 
+        Dim referenciaTabla As String =
+            "vw_cliente_perfil_transaccional_mensual_" &
+            anio.ToString(CultureInfo.InvariantCulture) & "_" &
+            mes.ToString("00", CultureInfo.InvariantCulture)
+
         Return EvaluarReglasSobreFila(
             cn,
             tr,
             reglas,
             fila,
             "PERFIL_TRANSACCIONAL",
-            "vw_cliente_perfil_transaccional_mensual",
+            referenciaTabla,
             clienteId,
             usuario,
             "Alerta generada automáticamente desde comparación de perfil transaccional esperado contra pagos reales."
@@ -1147,6 +1152,17 @@ Public Class handler_alertas_pld
                     End If
 
                     descripcion &= " Valor detectado: " & valorDetectado.ToString("0.####", CultureInfo.InvariantCulture) & ". Campo evaluado: " & campoValor & "."
+
+                    If origenEvento = "PERFIL_TRANSACCIONAL" Then
+                        descripcion &= " Perfil esperado: " &
+                            ObtenerDecimalColumna(fila, "perfil_pagos_mensuales_esperados").ToString("0.####", CultureInfo.InvariantCulture) &
+                            " pagos / " &
+                            ObtenerDecimalColumna(fila, "perfil_monto_mensual_esperado").ToString("0.00", CultureInfo.InvariantCulture) &
+                            ". Real observado: " &
+                            ObtenerDecimalColumna(fila, "pagos_realizados").ToString("0.####", CultureInfo.InvariantCulture) &
+                            " pagos / " &
+                            ObtenerDecimalColumna(fila, "monto_pagado").ToString("0.00", CultureInfo.InvariantCulture) & "."
+                    End If
 
                     Dim impacto As Integer = ToInt(row("impacto"), 1)
                     Dim probabilidad As Integer = ToInt(row("probabilidad"), 1)
