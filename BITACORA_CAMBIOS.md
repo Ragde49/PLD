@@ -6,6 +6,27 @@ Registro funcional y técnico de cambios relevantes del repositorio.
 
 ---
 
+## 2026-09-22 — README y estructura de base de datos obligatoriamente sincronizados
+
+**Autor/agente:** ChatGPT / Bill  
+**Resumen:** Se reforzaron las instrucciones maestras para obligar a ChatGPT, Codex y otros agentes a mantener actualizado el README y la documentación de estructura de base de datos en cada cambio aplicable.
+
+**Archivos principales:**
+- `AGENTS.md` — reglas de cierre, mantenimiento de README y sincronización obligatoria de cambios de BD.
+- `PLD/SQL/ESTRUCTURA_BASE_DATOS.md` — nueva referencia canónica de estructura conocida y reglas de mantenimiento.
+- `README.md` — referencia a la documentación canónica de estructura de BD.
+- `BITACORA_CAMBIOS.md` — esta entrada.
+
+**Base de datos / SQL:** Sin cambios de esquema. No se ejecutó migración. Se creó documentación de estructura conocida basada únicamente en objetos confirmados por scripts/código existentes.
+
+**Validación:** Revisión documental. No se requiere compilación porque no se modificó lógica ejecutable ni proyecto.
+
+**Commit/PR:** Ver commit Git que contiene esta entrada.
+
+**Observaciones:** Desde este cambio, una tarea que modifique base de datos no se considera terminada si no actualiza simultáneamente el SQL incremental y `PLD/SQL/ESTRUCTURA_BASE_DATOS.md`. El README también debe mantenerse al día cuando el cambio afecte la documentación general del sistema.
+
+---
+
 ## 2026-09-22 — Estandarización de trabajo para ChatGPT/Codex
 
 **Autor/agente:** ChatGPT / Bill  
