@@ -61,6 +61,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Core" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -163,6 +164,7 @@
     <Content Include="Secure\config_puntaje_categoria.aspx" />
     <Content Include="Secure\pagos_credito.aspx" />
     <Content Include="Secure\credito_revolvente.aspx" />
+    <Content Include="Secure\listas_pld.aspx" />
     <Content Include="Secure\presolicitud_form.aspx" />
     <Content Include="Secure\seguridad.aspx" />
     <Content Include="Secure\solicitud_pf.aspx" />
@@ -171,6 +173,7 @@
     <Content Include="SQL\20260922_001_credito_revolvente.sql" />
     <Content Include="SQL\20260922_002_perfil_transaccional_cliente.sql" />
     <Content Include="SQL\20260922_003_preflight_rc_revolvente.sql" />
+    <Content Include="SQL\20260922_004_listas_pld.sql" />
     <Content Include="Docs md\RC_QA_CREDITO_REVOLVENTE.md" />
     <Content Include="Web.config" />
     <Content Include="Handlers\solicitudPFHandler.ashx" />
@@ -234,6 +237,7 @@
     <Content Include="Handlers\handler_alertas_pld.ashx" />
     <Content Include="Handlers\handler_pagos_credito.ashx" />
     <Content Include="Handlers\handler_credito_revolvente.ashx" />
+    <Content Include="Handlers\handler_listas_pld.ashx" />
     <Content Include="Handlers\handler_config_alertas_destinatarios.ashx" />
     <Content Include="Handlers\handler_prueba_correo_pld.ashx" />
     <None Include="Web.Debug.config">
@@ -362,6 +366,9 @@
     </Compile>
     <Compile Include="Handlers\handler_credito_revolvente.ashx.vb">
       <DependentUpon>handler_credito_revolvente.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\handler_listas_pld.ashx.vb">
+      <DependentUpon>handler_listas_pld.ashx</DependentUpon>
     </Compile>
     <Compile Include="Handlers\handler_paises.ashx.vb">
       <DependentUpon>handler_paises.ashx</DependentUpon>
@@ -741,6 +748,13 @@
     </Compile>
     <Compile Include="Secure\credito_revolvente.aspx.designer.vb">
       <DependentUpon>credito_revolvente.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Secure\listas_pld.aspx.vb">
+      <DependentUpon>listas_pld.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Secure\listas_pld.aspx.designer.vb">
+      <DependentUpon>listas_pld.aspx</DependentUpon>
     </Compile>
     <Compile Include="Secure\solicitud_pf.aspx.vb">
       <DependentUpon>solicitud_pf.aspx</DependentUpon>
