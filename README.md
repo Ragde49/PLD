@@ -158,7 +158,7 @@ Los handlers reciben una acción por request y devuelven datos/JSON según el ca
 | `solicitud_credito_handler.ashx` | `crear`, `obtener`, `actualizar_operacion`, `actualizar_relaciones`, `listar`, `finalizar`, `amortizacion_condusef`, `periodos_producto`, `ping` |
 | `clientes_handler.ashx` | `crear`, `actualizar`, `buscar`, `obtener`, `ping` |
 | `contacto_solicitud_handler.ashx` | crear/obtener contacto; altas y actualización de teléfonos, correos y domicilios; selección de principal y activación/desactivación |
-| `handler_alertas_pld.ashx` | catálogos de reglas/motivos/categorías, bandeja, obtener, bitácora, generación manual/automática, cambio de estatus y asignación |
+| `handler_alertas_pld.ashx` | catálogos de reglas/motivos/categorías, bandeja, obtener, bitácora, generación manual/automática, evaluación de pagos y perfil transaccional, cambio de estatus y asignación |
 | `handler_pagos_credito.ashx` | `consultar`, `obtener`, `catalogos`, `buscar_referencias`, `guardar_aplicar`, `cancelar` |
 | `handler_credito_revolvente.ashx` | `resumen`, `configurar_linea`, `listar_disposiciones`, `crear_disposicion`, `reversar_disposicion`, `historial` |
 | `producto_financiero_handler.ashx` | `list`, `get`, `create`, `update`, `delete` y administración de periodos |
@@ -285,6 +285,12 @@ La operación revolvente aplica controles adicionales de integridad:
 - cancelar un pago se bloquea si la historia resultante produce saldo negativo o excede el límite autorizado;
 - el motivo de cancelación es obligatorio;
 - saldo utilizado y disponible se recalculan en servidor; el JavaScript no es fuente de verdad.
+
+El perfil transaccional esperado del cliente se captura con la identidad mediante:
+- pagos esperados por mes;
+- monto mensual esperado.
+
+La migración `PLD/SQL/20260922_002_perfil_transaccional_cliente.sql` agrega esos datos a `cliente_persona_fisica`, su auditoría y la vista `vw_cliente_perfil_transaccional_mensual`, que compara el comportamiento mensual real contra el esperado. El motor de alertas soporta el tipo configurable `PERFIL_TRANSACCIONAL`; no se insertan reglas ni umbrales automáticamente.
 
 La implementación actual no calcula intereses, pago mínimo, prelación de pagos, mora ni estado de cuenta contractual/regulatorio; esas reglas permanecen pendientes de definición funcional.
 
