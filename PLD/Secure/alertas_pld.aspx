@@ -202,6 +202,52 @@
                     <hr />
 
                     <h6 class="mb-2">
+                        <i class="fa fa-search me-1"></i>
+                        Investigación / análisis de Cumplimiento
+                    </h6>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label for="investigacionResultado" class="form-label">Resultado</label>
+                            <select id="investigacionResultado" class="form-select">
+                                <option value="EN_ANALISIS">En análisis</option>
+                                <option value="JUSTIFICADA">Justificada</option>
+                                <option value="NO_JUSTIFICADA">No justificada</option>
+                            </select>
+                        </div>
+                        <div class="col-md-7">
+                            <label for="investigacionComentario" class="form-label">Comentario de Cumplimiento *</label>
+                            <textarea id="investigacionComentario" class="form-control" rows="2" placeholder="Documenta análisis, evidencia o conclusión..."></textarea>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" id="btnAgregarInvestigacion" class="btn btn-outline-primary w-100">
+                                Agregar análisis
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-text">Registrar un análisis no cambia automáticamente el estatus operativo de la alerta.</div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-bordered align-middle w-100">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Resultado</th>
+                                    <th>Categoría</th>
+                                    <th>Origen</th>
+                                    <th>Usuario</th>
+                                    <th>Comentario</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyInvestigacion"></tbody>
+                        </table>
+                    </div>
+
+                    <hr />
+
+                    <h6 class="mb-2">
                         <i class="fa fa-history me-1"></i>
                         Bitácora
                     </h6>
@@ -449,6 +495,10 @@
 
                 document.getElementById("btnGuardarAsignacion").addEventListener("click", function () {
                     guardarAsignacion();
+                });
+
+                document.getElementById("btnAgregarInvestigacion").addEventListener("click", function () {
+                    agregarInvestigacion();
                 });
 
                 document.getElementById("filtroBusqueda").addEventListener("keyup", function (e) {
@@ -741,6 +791,7 @@
                         }
 
                         llenarDetalle(resp.data);
+                        cargarInvestigacion(id);
                         cargarBitacora(id);
                         modalDetalleAlerta.show();
                     })
@@ -798,6 +849,83 @@
 
                             tbody.appendChild(tr);
                         });
+                    })
+                    .catch(function (error) {
+                        mostrarError(error.message);
+                    });
+            }
+
+            function badgeInvestigacion(resultado) {
+                const r = valorSeguro(resultado).toUpperCase();
+                if (r === "JUSTIFICADA") return '<span class="badge bg-success">Justificada</span>';
+                if (r === "NO_JUSTIFICADA") return '<span class="badge bg-danger">No justificada</span>';
+                return '<span class="badge bg-warning text-dark">En análisis</span>';
+            }
+
+            function cargarInvestigacion(alertaId) {
+                fetchJson(construirUrl("investigacion", { alerta_id: alertaId }))
+                    .then(function (resp) {
+                        if (!resp.ok) {
+                            mostrarError(resp.mensaje);
+                            return;
+                        }
+
+                        const tbody = document.getElementById("tbodyInvestigacion");
+                        tbody.innerHTML = "";
+
+                        if (!resp.data || resp.data.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Sin análisis registrados.</td></tr>';
+                            return;
+                        }
+
+                        resp.data.forEach(function (item) {
+                            const tr = document.createElement("tr");
+                            tr.innerHTML =
+                                '<td>' + fechaCorta(item.fecha_investigacion) + '</td>' +
+                                '<td>' + badgeInvestigacion(item.resultado) + '</td>' +
+                                '<td>' + valorSeguro(item.categoria_alerta) + '</td>' +
+                                '<td>' + valorSeguro(item.origen_evento) + '</td>' +
+                                '<td>' + valorSeguro(item.usuario) + '</td>' +
+                                '<td>' + valorSeguro(item.comentario) + '</td>';
+                            tbody.appendChild(tr);
+                        });
+                    })
+                    .catch(function (error) {
+                        mostrarError(error.message);
+                    });
+            }
+
+            function agregarInvestigacion() {
+                const alertaId = document.getElementById("detalleAlertaId").value;
+                const resultado = document.getElementById("investigacionResultado").value;
+                const comentario = document.getElementById("investigacionComentario").value.trim();
+
+                if (!alertaId || parseInt(alertaId, 10) <= 0) {
+                    mostrarError("No se encontró la alerta.");
+                    return;
+                }
+                if (!comentario) {
+                    mostrarError("Captura el comentario de investigación.");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("action", "agregar_investigacion");
+                formData.append("alerta_id", alertaId);
+                formData.append("resultado", resultado);
+                formData.append("comentario", comentario);
+
+                fetchJson(HANDLER, { method: "POST", body: formData })
+                    .then(function (resp) {
+                        if (!resp.ok) {
+                            mostrarError(resp.mensaje);
+                            return;
+                        }
+
+                        document.getElementById("investigacionComentario").value = "";
+                        mostrarExito(resp.mensaje);
+                        cargarInvestigacion(alertaId);
+                        cargarBitacora(alertaId);
                     })
                     .catch(function (error) {
                         mostrarError(error.message);
