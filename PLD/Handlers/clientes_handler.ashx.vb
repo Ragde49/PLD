@@ -248,6 +248,15 @@ Public Class clientes_handler
         Dim otrosIng = ToDec(GetField(ctx, json, "otros_ingresos"))
         Dim egresos = ToDec(GetField(ctx, json, "egresos"))
         Dim ingresoMensual = ToDec(GetField(ctx, json, "ingreso_mensual"))
+        Dim perfilPagosMensuales = ToInt(GetField(ctx, json, "perfil_pagos_mensuales_esperados"))
+        Dim perfilMontoMensual = ToDec(GetField(ctx, json, "perfil_monto_mensual_esperado"))
+
+        If perfilPagosMensuales.HasValue AndAlso perfilPagosMensuales.Value < 0 Then
+            WriteError(ctx, "El número esperado de pagos por mes no puede ser negativo.") : Exit Sub
+        End If
+        If perfilMontoMensual.HasValue AndAlso perfilMontoMensual.Value < 0D Then
+            WriteError(ctx, "El monto mensual esperado no puede ser negativo.") : Exit Sub
+        End If
 
         ' ===== Nuevos campos PLD / consentimiento / identificación =====
         Dim origenOtros = GetField(ctx, json, "origen_otros_ingresos")
@@ -313,6 +322,8 @@ Public Class clientes_handler
                      origen_otros_ingresos, acepta_aviso_privacidad, tipo_identificacion, numero_identificacion, vigencia_identificacion,
                      nacionalidad_id, pais_nacimiento_id, estado_nacimiento_id, ocupacion_id, actividad_economica_id,
                      pais_domicilio_id, estado_domicilio_id, municipio_domicilio_id, ingreso_mensual,
+                     perfil_pagos_mensuales_esperados, perfil_monto_mensual_esperado,
+                     perfil_transaccional_modificado_por, perfil_transaccional_fecha_modificacion,
                      regimen_matrimonial, dependientes, escolaridad, antiguedad_meses, actividad_economica,
                      fecha_captura, usuario_captura)
                     VALUES
@@ -323,6 +334,7 @@ Public Class clientes_handler
                      @origen,@aviso,@tident,@nident,@vigident,
                      @nid,@pid,@eid,@oid,@aeid,
                      @pdom,@edom,@mdom,@ingm,
+                     @perfilPagos,@perfilMonto,@user,SYSDATETIME(),
                      @regimen,@dep,@esc,@antMeses,@actEcoTxt,
                      GETDATE(),@user);
                     SELECT SCOPE_IDENTITY();"
@@ -393,6 +405,11 @@ Public Class clientes_handler
                         cmd.Parameters.Add("@mdom", SqlDbType.Int).Value = If(munDomId.HasValue, CType(munDomId.Value, Object), DBNull.Value)
 
                         cmd.Parameters.Add("@ingm", SqlDbType.Decimal).Value = If(ingresoMensual.HasValue, CType(ingresoMensual.Value, Object), DBNull.Value)
+
+                        cmd.Parameters.Add("@perfilPagos", SqlDbType.Int).Value = If(perfilPagosMensuales.HasValue, CType(perfilPagosMensuales.Value, Object), DBNull.Value)
+                        cmd.Parameters.Add("@perfilMonto", SqlDbType.Decimal).Value = If(perfilMontoMensual.HasValue, CType(perfilMontoMensual.Value, Object), DBNull.Value)
+                        cmd.Parameters("@perfilMonto").Precision = 18
+                        cmd.Parameters("@perfilMonto").Scale = 2
 
                         ' Regimen / dependientes / escolaridad / antigüedad (meses) / actividad texto
                         cmd.Parameters.Add("@regimen", SqlDbType.VarChar, 50).Value = If(String.IsNullOrEmpty(regimenMatrimonial), CType(DBNull.Value, Object), regimenMatrimonial)
@@ -515,6 +532,15 @@ Public Class clientes_handler
         Dim otrosIng = ToDec(GetField(ctx, json, "otros_ingresos"))
         Dim egresos = ToDec(GetField(ctx, json, "egresos"))
         Dim ingresoMensual = ToDec(GetField(ctx, json, "ingreso_mensual"))
+        Dim perfilPagosMensuales = ToInt(GetField(ctx, json, "perfil_pagos_mensuales_esperados"))
+        Dim perfilMontoMensual = ToDec(GetField(ctx, json, "perfil_monto_mensual_esperado"))
+
+        If perfilPagosMensuales.HasValue AndAlso perfilPagosMensuales.Value < 0 Then
+            WriteError(ctx, "El número esperado de pagos por mes no puede ser negativo.") : Exit Sub
+        End If
+        If perfilMontoMensual.HasValue AndAlso perfilMontoMensual.Value < 0D Then
+            WriteError(ctx, "El monto mensual esperado no puede ser negativo.") : Exit Sub
+        End If
 
         ' ===== PLD: Origen ingresos / consentimiento / identificación =====
         Dim origenOtros = GetField(ctx, json, "origen_otros_ingresos")
@@ -604,6 +630,10 @@ Public Class clientes_handler
                         estado_domicilio_id=@edom,
                         municipio_domicilio_id=@mdom,
                         ingreso_mensual=@ingm,
+                        perfil_pagos_mensuales_esperados=@perfilPagos,
+                        perfil_monto_mensual_esperado=@perfilMonto,
+                        perfil_transaccional_modificado_por=@user,
+                        perfil_transaccional_fecha_modificacion=SYSDATETIME(),
                         regimen_matrimonial=@regimen,
                         dependientes=@dep,
                         escolaridad=@esc,
@@ -678,6 +708,11 @@ Public Class clientes_handler
                         cmd.Parameters.Add("@mdom", SqlDbType.Int).Value = If(munDomId.HasValue, munDomId.Value, DBNull.Value)
 
                         cmd.Parameters.Add("@ingm", SqlDbType.Decimal).Value = If(ingresoMensual.HasValue, ingresoMensual.Value, DBNull.Value)
+                        cmd.Parameters.Add("@perfilPagos", SqlDbType.Int).Value = If(perfilPagosMensuales.HasValue, CType(perfilPagosMensuales.Value, Object), DBNull.Value)
+                        cmd.Parameters.Add("@perfilMonto", SqlDbType.Decimal).Value = If(perfilMontoMensual.HasValue, CType(perfilMontoMensual.Value, Object), DBNull.Value)
+                        cmd.Parameters("@perfilMonto").Precision = 18
+                        cmd.Parameters("@perfilMonto").Scale = 2
+                        cmd.Parameters.Add("@user", SqlDbType.VarChar, 100).Value = NowUser()
 
                         ' Regimen / dependientes / escolaridad / antigüedad (meses) / actividad texto
                         cmd.Parameters.Add("@regimen", SqlDbType.VarChar, 50).Value = If(String.IsNullOrEmpty(regimenMatrimonial), DBNull.Value, regimenMatrimonial)
