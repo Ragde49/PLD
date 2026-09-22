@@ -23,7 +23,10 @@ En ambientes donde la seguridad base ya existe:
 
 1. PLD/SQL/20260922_001_credito_revolvente.sql
 2. PLD/SQL/20260922_002_perfil_transaccional_cliente.sql
-3. PLD/SQL/20260922_003_preflight_rc_revolvente.sql
+3. PLD/SQL/20260922_004_listas_pld.sql
+4. PLD/SQL/20260922_005_alertas_investigacion.sql
+5. PLD/SQL/20260922_003_preflight_rc_revolvente.sql
+6. PLD/SQL/20260922_006_preflight_integral_pld.sql
 
 En un ambiente nuevo que todavía no tenga seguridad inicializada, ejecutar previamente:
 
@@ -223,8 +226,8 @@ No forman parte de esta RC operativa mientras el cliente no entregue o autorice 
 Marcar GO únicamente cuando:
 
 - compilación Debug y Release: PASS;
-- migraciones 001 y 002 aplicadas en DB de pruebas: PASS;
-- preflight 003: PASS;
+- migraciones 001, 002, 004 y 005 aplicadas en DB de pruebas: PASS;
+- preflight 003 y 006: PASS;
 - smoke test revolvente: PASS;
 - regresión simple: PASS;
 - seguridad: PASS;
